@@ -1,0 +1,141 @@
+/* Overlay */
+.modal-overlay{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.6);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 9999;
+}
+
+/* Contenedor del modal */
+.experiencia-container{
+  background: #fff;
+  padding: 16px 18px;
+  border-radius: 14px;
+  width: min(760px, 92vw);      /* más angosto */
+  max-height: 86vh;             /* limita alto */
+  overflow: auto;               /* scroll interno */
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  position: relative; z-index: 10000;
+}
+
+.experiencia-container h2{
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 .75rem;
+}
+
+/* Form: 2 columnas en desktop */
+.experiencia-form{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem 1rem;
+  font-size: .95rem;
+}
+
+.experiencia-form .full{ grid-column: 1 / -1; }
+
+.experiencia-form input,
+.experiencia-form textarea,
+.experiencia-form select{
+  padding: .55rem .7rem;
+  font-size: .95rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  outline: none;
+}
+
+.experiencia-form input[type="text"],
+.experiencia-form input[type="date"],
+.experiencia-form select{
+  height: 36px;
+}
+
+.experiencia-form textarea{
+  min-height: 70px;
+  resize: vertical;
+}
+
+/* Botón principal (no afectes otros botones) */
+.experiencia-form .btn-primary{
+  background: #2d6a4f;
+  color: #fff;
+  border: none;
+  height: 40px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter .2s ease;
+}
+.experiencia-form .btn-primary:hover{ filter: brightness(.92); }
+
+/* Tabla compacta */
+.experiencia-table{
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: .7rem;
+}
+
+.experiencia-table th,
+.experiencia-table td{
+  border-bottom: 1px solid #eee;
+  padding: .55rem .6rem;
+  text-align: left;
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.experiencia-table th{
+  background: #fafafa;
+  font-weight: 700;
+}
+
+/* Botón Ver PDF */
+.ver-btn{
+  background: #457b9d;
+  color: #fff;
+  padding: .35rem .7rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .85rem;
+}
+.ver-btn:hover{ filter: brightness(.92); }
+
+/* Modal PDF */
+.pdf-modal{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10001;
+}
+.pdf-modal-content{
+  background: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  width: min(800px, 95vw);
+  position: relative;
+}
+.cerrar-pdf{
+  position: absolute; top: 10px; right: 15px;
+  background: #c62828; color: #fff;
+  border: none; border-radius: 50%;
+  width: 30px; height: 30px; font-weight: 700;
+  cursor: pointer;
+}
+
+/* Botón cerrar módulo */
+.cerrar-formacion-btn{
+  margin-top: 1rem;
+  background: #d35a2a;
+  color: #fff; border: none;
+  padding: .55rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.cerrar-formacion-btn:hover{ filter: brightness(.92); }
+
+/* Responsive: 1 columna en móviles */
+@media (max-width: 640px){
+  .experiencia-form{ grid-template-columns: 1fr; }
+}

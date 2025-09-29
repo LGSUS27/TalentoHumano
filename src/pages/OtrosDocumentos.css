@@ -1,0 +1,168 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.otros-docs-modal {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  max-height: 95vh;
+}
+
+.otros-docs-modal h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #2d6a4f;
+}
+
+.otros-docs-form {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.otros-docs-form label {
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  display: block;
+  color: #333;
+}
+
+.otros-docs-form input[type="file"] {
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  width: 100%;
+}
+
+.otros-docs-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.otros-docs-buttons button {
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.guardar-btn {
+  background-color: #28a745; /* verde */
+  color: white;
+  padding: 8px 16px;          /* igual que cerrar */
+  font-size: 14px;            /* igual que cerrar */
+  border: none;
+  border-radius: 6px;         /* igual que cerrar */
+  cursor: pointer;
+  font-weight: bold;
+}
+
+
+.cerrar-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+
+.guardar-btn:hover {
+  background-color: #1b4332;
+}
+
+.cerrar-btn:hover {
+  background-color: #5a6268;
+}
+
+.archivo-actual{
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: .25rem 0 .5rem;
+}
+
+/* Botón base (se aplica a <a> y <button> dentro de .archivo-actual) */
+.archivo-actual a,
+.archivo-actual button{
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .38rem .75rem;
+  border-radius: 999px;
+  font-size: .9rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color .2s ease, box-shadow .2s ease, transform .02s ease;
+}
+
+/* "Ver PDF actual" (el <a>) */
+.archivo-actual a{
+  background: var(--brand-bg);
+  color: var(--brand-fg);
+  border-color: var(--brand-bd);
+}
+.archivo-actual a:hover{
+  background: var(--brand-bg-hover);
+  box-shadow: 0 1px 0 rgba(0,0,0,.05);
+}
+.archivo-actual a:focus-visible{
+  outline: 2px solid var(--brand-bd);
+  outline-offset: 2px;
+}
+.archivo-actual a::before{
+  content: "📄";
+  font-size: 1.05em;
+  line-height: 1;
+}
+
+/* "Eliminar" (tu botón ya tiene .btn-danger) */
+.archivo-actual .btn-danger{
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+  border-color: var(--danger-bd);
+}
+.archivo-actual .btn-danger:hover{
+  background: var(--danger-bg-hover);
+}
+.archivo-actual .btn-danger:focus-visible{
+  outline: 2px solid var(--danger-bd);
+  outline-offset: 2px;
+}
+.archivo-actual .btn-danger::before{
+  content: "🗑️";
+  font-size: 1.05em;
+  line-height: 1;
+}
+
+/* Feedback al hacer clic */
+.archivo-actual a:active,
+.archivo-actual .btn-danger:active{
+  transform: translateY(1px);
+}
+
+/* Chip "Sin archivo" */
+.sin-archivo{
+  display: inline-block;
+  padding: .2rem .5rem;
+  border-radius: 999px;
+  background: #f4f4f5;
+  color: var(--ink-600);
+  font-size: .8rem;
+}

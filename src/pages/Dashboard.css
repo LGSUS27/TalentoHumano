@@ -1,0 +1,367 @@
+/* =======================
+   Reset general
+======================= */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: sans-serif;
+  background-color: #f4f4f4;
+}
+
+/* =======================
+   Layout
+======================= */
+.dashboard-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f4f4f4;
+  overflow-x: hidden; /* evita scroll horizontal */
+}
+
+/* Header */
+.dashboard-header {
+  width: 100%;
+  min-width: 100vw;
+  background-color: #477e78;
+  color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.user-button {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.arrow-icon { margin-left: 0.3rem; }
+
+.menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  background: #fff;
+  color: #000;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  z-index: 1000;
+  min-width: 150px;
+}
+.menu-dropdown button {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.menu-dropdown button:hover { background-color: #f0f0f0; }
+
+/* Main */
+.dashboard-main { flex: 1; padding: 2rem; }
+
+/* Acciones superiores */
+.table-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+  flex-wrap: wrap;
+}
+.crear-btn {
+  background-color: #d35a2a;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-left: auto;
+}
+.crear-btn:hover { background-color: #a74822; }
+
+.search-container { max-width: 300px; flex-grow: 1; margin-right: auto; }
+.search-input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* =======================
+   Tabla de empleados
+======================= */
+.employee-table-container {
+  max-width: 2000px;
+  margin: 0 auto 2rem auto;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Reparto estable de anchos (100%) */
+:root{
+  --col-nombre:        24%;
+  --col-id:            10%;
+  --col-contrato:      11%;
+  --col-fecha-inicio:   9%;
+  --col-fecha-fin:      9%;
+  --col-sueldo:        10%;
+  --col-tipo:           9%;
+  --col-cargo:          8%;
+  --col-acciones:      10%;
+}
+
+.employee-table { width: 100%; border-collapse: collapse; text-align: left; }
+.employee-table.tabla-empleados { table-layout: fixed; }
+
+.employee-table th,
+.employee-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #ddd;
+  vertical-align: middle;
+}
+
+.employee-table thead th {
+  background-color: #2c524e;
+  color: #fff;
+  font-weight: bold;
+  white-space: normal;      /* encabezados pueden saltar de línea */
+  overflow: visible;
+}
+
+/* Celdas: por defecto una línea con elipsis */
+.employee-table tbody td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Anchos por columna: thead + tbody (suman 100%) */
+.tabla-empleados thead th:nth-child(1),
+.tabla-empleados tbody td:nth-child(1){ width: var(--col-nombre); }
+.tabla-empleados thead th:nth-child(2),
+.tabla-empleados tbody td:nth-child(2){ width: var(--col-id); }
+.tabla-empleados thead th:nth-child(3),
+.tabla-empleados tbody td:nth-child(3){ width: var(--col-contrato); }
+.tabla-empleados thead th:nth-child(4),
+.tabla-empleados tbody td:nth-child(4){ width: var(--col-fecha-inicio); }
+.tabla-empleados thead th:nth-child(5),
+.tabla-empleados tbody td:nth-child(5){ width: var(--col-fecha-fin); }
+.tabla-empleados thead th:nth-child(6),
+.tabla-empleados tbody td:nth-child(6){ width: var(--col-sueldo); }
+.tabla-empleados thead th:nth-child(7),
+.tabla-empleados tbody td:nth-child(7){ width: var(--col-tipo); }
+.tabla-empleados thead th:nth-child(8),
+.tabla-empleados tbody td:nth-child(8){ width: var(--col-cargo); }
+.tabla-empleados thead th:nth-child(9),
+.tabla-empleados tbody td:nth-child(9){ width: var(--col-acciones); }
+
+/* Nombres largos: elipsis con tooltip desde JSX (title="...") */
+.col-nombre { overflow: hidden; }
+.col-nombre .truncate{
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Cargo: sin recorte, permite varias líneas ===== */
+.tabla-empleados tbody td:nth-child(8){
+  white-space: normal;      /* permite multi-línea */
+  overflow: visible;
+  text-overflow: initial;
+}
+
+/* ===== Acciones: botones de izquierda a derecha con wrap ===== */
+.tabla-empleados td.col-acciones{
+  white-space: normal;
+  overflow: visible;
+  padding-right: 12px;
+}
+.tabla-empleados td.col-acciones .acciones{
+  display: flex;
+  flex-wrap: wrap;          /* bajan a segunda línea si no caben */
+  gap: 6px;
+  justify-content: flex-start;  /* ⬅️ izquierda a derecha */
+  align-items: center;
+}
+.tabla-empleados td.col-acciones button{
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.employee-table tbody tr:nth-child(even) { background-color: #f9f9f9; }
+.employee-table tbody tr:hover { background-color: #eef6fb; transition: background-color 0.2s ease; }
+
+/* =======================
+   Botones de acciones (estilo)
+======================= */
+.info-btn,
+.formacion-btn,
+.experiencia-btn,
+.otros-documentos-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  font-weight: bold;
+}
+.info-btn:hover,
+.formacion-btn:hover,
+.experiencia-btn:hover,
+.otros-documentos-btn:hover { background-color: #2c80b4; }
+
+/* =======================
+   Modal: Crear empleado
+======================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+.modal-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+.modal-content h3 { margin-bottom: 1rem; color: #333; }
+
+/* Formulario del modal */
+.empleado-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem 1rem;
+}
+
+.empleado-form input,
+.empleado-form select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.58rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  background: #fff;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.empleado-form input:focus,
+.empleado-form select:focus {
+  border-color: #477e78;
+  box-shadow: 0 0 0 3px rgba(71,126,120,.15);
+}
+
+/* Etiquetas visibles de fecha */
+.empleado-form label.field{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.empleado-form .field-title{
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #334155;
+  padding-left: 2px;
+}
+.empleado-form label.field input[type="date"]{
+  padding: 0.5rem 0.6rem;
+}
+
+/* Botón guardar del modal */
+.guardar-btn {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  grid-column: 1 / -1;
+  cursor: pointer;
+  font-weight: 700;
+  transition: filter .2s ease, background-color .2s ease;
+}
+.guardar-btn:hover { background-color: #218838; }
+
+/* Cerrar genérico */
+.cerrar-btn {
+  margin-top: 1rem;
+  background-color: #d35a2a;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+  justify-content: center;
+}
+
+/* =======================
+   Responsivo
+======================= */
+@media (max-width: 1400px){
+  :root{
+    --col-nombre: 22%;
+    --col-id: 10%;
+    --col-contrato: 11%;
+    --col-fecha-inicio: 9%;
+    --col-fecha-fin: 9%;
+    --col-sueldo: 10%;
+    --col-tipo: 9%;
+    --col-cargo: 7%;
+    --col-acciones: 13%;
+  }
+}
+@media (max-width: 1200px){
+  :root{
+    --col-nombre: 21%;
+    --col-id: 10%;
+    --col-contrato: 11%;
+    --col-fecha-inicio: 8%;
+    --col-fecha-fin: 8%;
+    --col-sueldo: 10%;
+    --col-tipo: 9%;
+    --col-cargo: 7%;
+    --col-acciones: 16%;
+  }
+}
+@media (max-width: 768px){
+  .empleado-form { grid-template-columns: 1fr; }
+  /* Si prefieres scroll horizontal en la tabla en móviles:
+  .employee-table-container { overflow-x: auto; }
+  .employee-table { min-width: 1100px; } */
+}
