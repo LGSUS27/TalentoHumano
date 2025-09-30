@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Login.css";
+import logoOftalmolaser from "../assets/oftalmolaser.png";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -31,30 +32,54 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <form className="login-form" onSubmit={handleSubmit}>
-        <h2>Login Talento Humano</h2>
+    <div className="login-page">
+      <div className="login-container">
+        <div className="logo-section">
+          <img src={logoOftalmolaser} alt="Oftalmoláser Logo" className="logo" />
+        </div>
+        
+        <div className="login-content">
+          <h2 className="login-title">Sistema de Talento Humano</h2>
+          <p className="login-subtitle">Accede a tu cuenta para continuar</p>
 
-        {error && <p className="error">{error}</p>}
+          <form className="login-form" onSubmit={handleSubmit}>
+            {error && <div className="error-message">{error}</div>}
 
-        <input
-          type="text"
-          placeholder="Usuario"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
+            <div className="input-group">
+              <label htmlFor="username">Usuario</label>
+              <input
+                id="username"
+                type="text"
+                placeholder="Ingresa tu usuario"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="login-input"
+              />
+            </div>
 
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+            <div className="input-group">
+              <label htmlFor="password">Contraseña</label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Ingresa tu contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="login-input"
+              />
+            </div>
 
-        <button type="submit">Ingresar</button>
-      </form>
+            <button type="submit" className="login-button">
+              <span>Iniciar Sesión</span>
+              <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
