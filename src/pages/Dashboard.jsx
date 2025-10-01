@@ -4,6 +4,7 @@ import InformacionPersonal from "./InformacionPersonal";
 import Formacion from "./Formacion";
 import Experiencia from "./Experiencia";
 import OtrosDocumentos from "./OtrosDocumentos";
+import logoOftalmolaser from "../assets/oftalmolaser.png";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -71,6 +72,7 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    setSelectedEmployee(null); // Limpiar empleado seleccionado
     navigate("/");
   };
 
@@ -79,39 +81,55 @@ const Dashboard = () => {
   const closeModal = () => setShowModal(false);
 
   const openInfoModal = (employee) => {
+    // Si es un empleado diferente, limpiamos el anterior
+    if (selectedEmployee && selectedEmployee.id !== employee.id) {
+      setSelectedEmployee(null);
+    }
     setSelectedEmployee(employee);
     setShowInfoModal(true);
   };
   const closeInfoModal = () => {
-    setSelectedEmployee(null);
     setShowInfoModal(false);
+    // No reseteamos selectedEmployee para mantener los datos
   };
 
   const openFormacionModal = (employee) => {
+    // Si es un empleado diferente, limpiamos el anterior
+    if (selectedEmployee && selectedEmployee.id !== employee.id) {
+      setSelectedEmployee(null);
+    }
     setSelectedEmployee(employee);
     setShowFormacionModal(true);
   };
   const closeFormacionModal = () => {
-    setSelectedEmployee(null);
     setShowFormacionModal(false);
+    // No reseteamos selectedEmployee para mantener los datos
   };
 
   const openExperienciaModal = (employee) => {
+    // Si es un empleado diferente, limpiamos el anterior
+    if (selectedEmployee && selectedEmployee.id !== employee.id) {
+      setSelectedEmployee(null);
+    }
     setSelectedEmployee(employee);
     setShowExperienciaModal(true);
   };
   const closeExperienciaModal = () => {
-    setSelectedEmployee(null);
     setShowExperienciaModal(false);
+    // No reseteamos selectedEmployee para mantener los datos
   };
 
   const openOtrosDocumentosModal = (employee) => {
+    // Si es un empleado diferente, limpiamos el anterior
+    if (selectedEmployee && selectedEmployee.id !== employee.id) {
+      setSelectedEmployee(null);
+    }
     setSelectedEmployee(employee);
     setShowOtrosDocumentosModal(true);
   };
   const closeOtrosDocumentosModal = () => {
-    setSelectedEmployee(null);
     setShowOtrosDocumentosModal(false);
+    // No reseteamos selectedEmployee para mantener los datos
   };
 
   const handleInputChange = (e) => {
@@ -174,15 +192,21 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <div className="dashboard-title">OFTALMOLASER SOCIEDAD DE CIRUGÍA DEL HUILA</div>
-        <button className="user-button" onClick={toggleMenu}>
-          admin <span className="arrow-icon">▼</span>
+        <div className="header-left">
+          <img 
+            src={logoOftalmolaser} 
+            alt="Oftalmoláser Logo" 
+            className="header-logo"
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
+          <div className="dashboard-title">Sistema de Talento Humano</div>
+        </div>
+        <button className="user-button" onClick={handleLogout}>
+          <span className="user-icon"></span>
+          Cerrar sesión
         </button>
-        {showMenu && (
-          <div className="menu-dropdown">
-            <button onClick={handleLogout}>Cerrar sesión</button>
-          </div>
-        )}
       </header>
 
       <main className="dashboard-main">

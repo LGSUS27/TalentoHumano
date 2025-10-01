@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Experiencia.css";
 
-const Experiencia = ({ onClose }) => {
+const Experiencia = ({ empleado, onClose }) => {
   const [experiencias, setExperiencias] = useState([]);
   const [formData, setFormData] = useState({
     empresa: "",
@@ -20,8 +20,10 @@ const Experiencia = ({ onClose }) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!empleado?.id) return;
+      
       try {
-        const res = await axios.get(`${API_URL}/api/experiencia`);
+        const res = await axios.get(`${API_URL}/api/experiencia/${empleado.id}`);
         const dataConArchivos = res.data.map((exp) => ({
           ...exp,
           archivoURL: `${API_URL}/uploads/${exp.soporte}`,
@@ -32,7 +34,7 @@ const Experiencia = ({ onClose }) => {
       }
     };
     fetchData();
-  }, []);
+  }, [empleado?.id]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -41,7 +43,19 @@ const Experiencia = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!empleado?.id) {
+      alert("Error: No se ha seleccionado un empleado.");
+      return;
+    }
+    
+    if (!formData.archivo) {
+      alert("Debes adjuntar un documento PDF.");
+      return;
+    }
+
     const data = new FormData();
+    data.append('empleado_id', empleado.id);
     Object.entries(formData).forEach(([k, v]) => data.append(k, v));
 
     try {
@@ -56,7 +70,7 @@ const Experiencia = ({ onClose }) => {
       });
     } catch (err) {
       console.error("Error al guardar experiencia:", err);
-      alert("Error al guardar experiencia");
+      alert("Error al guardar experiencia: " + (err.response?.data?.error || err.message));
     }
   };
 
@@ -67,7 +81,7 @@ const Experiencia = ({ onClose }) => {
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="experiencia-container" onClick={(e) => e.stopPropagation()}>
-        <h2>Experiencia Laboral</h2>
+        <h2>Experiencia Laboral - {empleado?.nombre || 'Empleado'}</h2>
 
         <form className="experiencia-form" onSubmit={handleSubmit}>
           <input name="empresa" value={formData.empresa} onChange={handleChange} placeholder="Empresa" required />

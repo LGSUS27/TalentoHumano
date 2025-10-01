@@ -11,7 +11,7 @@ html, body {
 }
 
 /* =======================
-   Layout
+  Layout
 ======================= */
 .dashboard-container {
   width: 100%;
@@ -22,30 +22,82 @@ html, body {
   overflow-x: hidden; /* evita scroll horizontal */
 }
 
+
 /* Header */
 .dashboard-header {
   width: 100%;
-  min-width: 100vw;
-  background-color: #477e78;
+  background-color: #00695C;
   color: #fff;
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
   box-sizing: border-box;
+  min-height: 80px;
+  z-index: 1000;
+  flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.header-logo {
+  height: 50px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  flex-shrink: 0;
+}
+
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-button {
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
-.arrow-icon { margin-left: 0.3rem; }
+.user-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.user-icon {
+  font-size: 1.2rem;
+}
+
+.arrow-icon { 
+  margin-left: 0.3rem;
+  transition: transform 0.3s ease;
+}
+
+.user-button:hover .arrow-icon {
+  transform: rotate(180deg);
+}
 
 .menu-dropdown {
   position: absolute;
@@ -71,7 +123,12 @@ html, body {
 .menu-dropdown button:hover { background-color: #f0f0f0; }
 
 /* Main */
-.dashboard-main { flex: 1; padding: 2rem; }
+.dashboard-main { 
+  flex: 1; 
+  padding: 2rem; 
+  margin-top: 80px; /* Compensa la altura del header fijo */
+  min-height: calc(100vh - 80px); /* Altura mínima menos el header */
+}
 
 /* Acciones superiores */
 .table-actions {
@@ -83,7 +140,7 @@ html, body {
   flex-wrap: wrap;
 }
 .crear-btn {
-  background-color: #d35a2a;
+  background-color: #00695C;
   color: #fff;
   border: none;
   padding: 0.5rem 1.2rem;
@@ -92,7 +149,7 @@ html, body {
   transition: background-color 0.2s ease;
   margin-left: auto;
 }
-.crear-btn:hover { background-color: #a74822; }
+.crear-btn:hover { background-color: #004d40; }
 
 .search-container { max-width: 300px; flex-grow: 1; margin-right: auto; }
 .search-input {
@@ -113,23 +170,14 @@ html, body {
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow-x: auto; /* Scroll horizontal si es necesario */
+  overflow-y: visible;
 }
 
-/* Reparto estable de anchos (100%) */
-:root{
-  --col-nombre:        24%;
-  --col-id:            10%;
-  --col-contrato:      11%;
-  --col-fecha-inicio:   9%;
-  --col-fecha-fin:      9%;
-  --col-sueldo:        10%;
-  --col-tipo:           9%;
-  --col-cargo:          8%;
-  --col-acciones:      10%;
-}
+/* Anchos automáticos basados en contenido - no necesitamos variables CSS */
 
 .employee-table { width: 100%; border-collapse: collapse; text-align: left; }
-.employee-table.tabla-empleados { table-layout: fixed; }
+.employee-table.tabla-empleados { table-layout: auto; }
 
 .employee-table th,
 .employee-table td {
@@ -146,32 +194,33 @@ html, body {
   overflow: visible;
 }
 
-/* Celdas: por defecto una línea con elipsis */
+/* Celdas: se ajustan al contenido */
 .employee-table tbody td {
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible; /* Permite que el contenido se vea completo */
+  text-overflow: initial;
+  word-wrap: break-word;
 }
 
-/* Anchos por columna: thead + tbody (suman 100%) */
+/* Anchos automáticos basados en contenido */
 .tabla-empleados thead th:nth-child(1),
-.tabla-empleados tbody td:nth-child(1){ width: var(--col-nombre); }
+.tabla-empleados tbody td:nth-child(1){ width: auto; min-width: 150px; } /* Nombre */
 .tabla-empleados thead th:nth-child(2),
-.tabla-empleados tbody td:nth-child(2){ width: var(--col-id); }
+.tabla-empleados tbody td:nth-child(2){ width: auto; min-width: 100px; } /* ID */
 .tabla-empleados thead th:nth-child(3),
-.tabla-empleados tbody td:nth-child(3){ width: var(--col-contrato); }
+.tabla-empleados tbody td:nth-child(3){ width: auto; min-width: 100px; } /* Contrato */
 .tabla-empleados thead th:nth-child(4),
-.tabla-empleados tbody td:nth-child(4){ width: var(--col-fecha-inicio); }
+.tabla-empleados tbody td:nth-child(4){ width: auto; min-width: 90px; }  /* Fecha inicio */
 .tabla-empleados thead th:nth-child(5),
-.tabla-empleados tbody td:nth-child(5){ width: var(--col-fecha-fin); }
+.tabla-empleados tbody td:nth-child(5){ width: auto; min-width: 90px; }  /* Fecha fin */
 .tabla-empleados thead th:nth-child(6),
-.tabla-empleados tbody td:nth-child(6){ width: var(--col-sueldo); }
+.tabla-empleados tbody td:nth-child(6){ width: auto; min-width: 120px; } /* Sueldo */
 .tabla-empleados thead th:nth-child(7),
-.tabla-empleados tbody td:nth-child(7){ width: var(--col-tipo); }
+.tabla-empleados tbody td:nth-child(7){ width: auto; min-width: 100px; } /* Tipo */
 .tabla-empleados thead th:nth-child(8),
-.tabla-empleados tbody td:nth-child(8){ width: var(--col-cargo); }
+.tabla-empleados tbody td:nth-child(8){ width: auto; min-width: 120px; } /* Cargo */
 .tabla-empleados thead th:nth-child(9),
-.tabla-empleados tbody td:nth-child(9){ width: var(--col-acciones); }
+.tabla-empleados tbody td:nth-child(9){ width: auto; min-width: 200px; } /* Acciones */
 
 /* Nombres largos: elipsis con tooltip desde JSX (title="...") */
 .col-nombre { overflow: hidden; }
@@ -183,17 +232,19 @@ html, body {
   text-overflow: ellipsis;
 }
 
-/* ===== Cargo: sin recorte, permite varias líneas ===== */
+/* ===== Cargo: permite varias líneas y se ajusta al contenido ===== */
 .tabla-empleados tbody td:nth-child(8){
   white-space: normal;      /* permite multi-línea */
-  overflow: visible;
-  text-overflow: initial;
+  overflow: visible;        /* permite que se vea completo */
+  text-overflow: initial;   /* sin ellipsis */
+  word-wrap: break-word;    /* rompe palabras largas */
+  line-height: 1.3;         /* mejor espaciado entre líneas */
 }
 
 /* ===== Acciones: botones de izquierda a derecha con wrap ===== */
 .tabla-empleados td.col-acciones{
   white-space: normal;
-  overflow: visible;
+  overflow: visible;       /* permite que se vea completo */
   padding-right: 12px;
 }
 .tabla-empleados td.col-acciones .acciones{
@@ -331,33 +382,58 @@ html, body {
 }
 
 /* =======================
-   Responsivo
+  Responsivo
 ======================= */
-@media (max-width: 1400px){
-  :root{
-    --col-nombre: 22%;
-    --col-id: 10%;
-    --col-contrato: 11%;
-    --col-fecha-inicio: 9%;
-    --col-fecha-fin: 9%;
-    --col-sueldo: 10%;
-    --col-tipo: 9%;
-    --col-cargo: 7%;
-    --col-acciones: 13%;
+
+/* Header responsive */
+@media (max-width: 1200px) {
+  .dashboard-title {
+    font-size: 1.2rem;
+  }
+  
+  .header-logo {
+    height: 40px;
   }
 }
-@media (max-width: 1200px){
-  :root{
-    --col-nombre: 21%;
-    --col-id: 10%;
-    --col-contrato: 11%;
-    --col-fecha-inicio: 8%;
-    --col-fecha-fin: 8%;
-    --col-sueldo: 10%;
-    --col-tipo: 9%;
-    --col-cargo: 7%;
-    --col-acciones: 16%;
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 0.8rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
+  
+  .header-left {
+    gap: 0.5rem;
+  }
+  
+  .dashboard-title {
+    font-size: 1rem;
+  }
+  
+  .header-logo {
+    height: 35px;
+  }
+  
+  .user-button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Media queries para anchos mínimos en pantallas pequeñas */
+@media (max-width: 1400px){
+  .tabla-empleados thead th:nth-child(1),
+  .tabla-empleados tbody td:nth-child(1){ min-width: 120px; } /* Nombre */
+  .tabla-empleados thead th:nth-child(9),
+  .tabla-empleados tbody td:nth-child(9){ min-width: 180px; } /* Acciones */
+}
+
+@media (max-width: 1200px){
+  .tabla-empleados thead th:nth-child(1),
+  .tabla-empleados tbody td:nth-child(1){ min-width: 100px; } /* Nombre */
+  .tabla-empleados thead th:nth-child(9),
+  .tabla-empleados tbody td:nth-child(9){ min-width: 160px; } /* Acciones */
 }
 @media (max-width: 768px){
   .empleado-form { grid-template-columns: 1fr; }

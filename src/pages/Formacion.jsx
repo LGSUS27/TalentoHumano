@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Formacion.css";
 
-const Formacion = ({ onClose }) => {
+const Formacion = ({ empleado, onClose }) => {
   const [formaciones, setFormaciones] = useState([]);
   const [formData, setFormData] = useState({
     institucion: "",
@@ -18,8 +18,10 @@ const Formacion = ({ onClose }) => {
 
   useEffect(() => {
     const fetchFormaciones = async () => {
+      if (!empleado?.id) return;
+      
       try {
-        const res = await axios.get(`${API_URL}/api/formacion`);
+        const res = await axios.get(`${API_URL}/api/formacion/${empleado.id}`);
         const formacionesConArchivos = res.data.map((form) => ({
           ...form,
           archivoURL: `${API_URL}/uploads/${form.archivo}`,
@@ -31,7 +33,7 @@ const Formacion = ({ onClose }) => {
     };
 
     fetchFormaciones();
-  }, []);
+  }, [empleado?.id]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -44,12 +46,19 @@ const Formacion = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!empleado?.id) {
+      alert("Error: No se ha seleccionado un empleado.");
+      return;
+    }
+    
     if (!formData.archivo) {
       alert("Debes adjuntar un documento PDF.");
       return;
     }
 
     const data = new FormData();
+    data.append('empleado_id', empleado.id);
     for (const key in formData) {
       data.append(key, formData[key]);
     }
@@ -76,7 +85,7 @@ const Formacion = ({ onClose }) => {
       });
     } catch (err) {
       console.error("Error al enviar datos:", err);
-      alert("Error al guardar la formación");
+      alert("Error al guardar la formación: " + (err.response?.data?.error || err.message));
     }
   };
 
@@ -90,7 +99,7 @@ const Formacion = ({ onClose }) => {
     <div className="modal-overlay" onClick={handleOutsideClick}>
       <div className="formacion-modal" onClick={(e) => e.stopPropagation()}>
         <div className="formacion-container">
-          <h2>Formación Académica</h2>
+          <h2>Formación Académica - {empleado?.nombre || 'Empleado'}</h2>
 
           <form className="formacion-form" onSubmit={handleSubmit}>
             <input type="text" name="institucion" placeholder="Institución" value={formData.institucion} onChange={handleChange} required />
