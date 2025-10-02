@@ -134,7 +134,20 @@ const Dashboard = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Capitalizar automáticamente la primera letra del cargo
+    if (name === 'cargo' && value.length > 0) {
+      const palabras = value.split(' ');
+      const palabrasCapitalizadas = palabras.map(palabra => {
+        if (palabra.length > 0) {
+          return palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase();
+        }
+        return palabra;
+      });
+      setFormData((prev) => ({ ...prev, [name]: palabrasCapitalizadas.join(' ') }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -184,18 +197,15 @@ const Dashboard = () => {
     // Validar fechas
     const fechaInicio = new Date(formData.fecha_inicio);
     const fechaFin = new Date(formData.fecha_fin);
-    const hoy = new Date();
 
-    if (fechaInicio > hoy) {
-      alert("Error: La fecha de inicio no puede ser futura");
+    // La fecha de inicio no puede ser anterior a 2002
+    const fechaMinimaInicio = new Date('2002-01-01');
+    if (fechaInicio < fechaMinimaInicio) {
+      alert("Error: La fecha de inicio no puede ser anterior a 2002");
       return;
     }
 
-    if (fechaFin > hoy) {
-      alert("Error: La fecha de fin no puede ser futura");
-      return;
-    }
-
+    // La fecha de fin solo debe ser posterior a la fecha de inicio
     if (fechaInicio > fechaFin) {
       alert("Error: La fecha de inicio no puede ser posterior a la fecha de fin");
       return;
@@ -221,6 +231,15 @@ const Dashboard = () => {
     if (!cargoRegex.test(formData.cargo)) {
       alert("Error: El cargo solo puede contener letras, espacios, guiones y puntos");
       return;
+    }
+
+    // Validar que la primera letra del cargo sea mayúscula
+    if (formData.cargo && formData.cargo.trim() !== "") {
+      const primeraLetra = formData.cargo.trim().charAt(0);
+      if (primeraLetra !== primeraLetra.toUpperCase() || !/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(primeraLetra)) {
+        alert("Error: El cargo debe comenzar con una letra mayúscula");
+        return;
+      }
     }
 
     try {
@@ -428,7 +447,6 @@ const Dashboard = () => {
                 />
               </label>
 
-              {/* 👉 Etiqueta visible: Fecha fin */}
               <label className="field">
                 <span className="field-title">Fecha fin</span>
                 <input
