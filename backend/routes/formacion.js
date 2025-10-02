@@ -85,4 +85,61 @@ router.get('/', async (req, res) => {
   }
 });
 
+// PUT: actualizar formación
+router.put('/:id', upload.single('archivo'), async (req, res) => {
+  const { id } = req.params;
+  const { empleado_id, institucion, programa, tipo, nivel, graduado, fecha } = req.body;
+  const archivo = req.file?.filename;
+
+  if (!empleado_id) {
+    return res.status(400).json({ error: 'empleado_id es requerido' });
+  }
+
+  try {
+    // Primero obtener los datos actuales
+    const currentResult = await pool.query('SELECT * FROM formacion WHERE id = $1', [id]);
+    if (currentResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Formación no encontrada' });
+    }
+
+    const current = currentResult.rows[0];
+
+    // Usar valores nuevos si se proporcionan, sino mantener los existentes
+    const institucionFinal = institucion || current.institucion;
+    const programaFinal = programa || current.programa;
+    const tipoFinal = tipo || current.tipo;
+    const nivelFinal = nivel || current.nivel;
+    const graduadoFinal = graduado || (current.graduado ? "Sí" : "No");
+    const fechaFinal = fecha || current.fecha;
+    const archivoFinal = archivo || current.archivo;
+
+    // Convertir "Sí"/"No" a boolean
+    const graduadoBoolean = graduadoFinal === "Sí" ? true : false;
+
+    // Validar que los campos obligatorios no estén vacíos
+    if (!institucionFinal || !programaFinal || !tipoFinal || !nivelFinal || !fechaFinal || !archivoFinal) {
+      return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    const result = await pool.query(
+      `UPDATE formacion 
+       SET empleado_id = $1, institucion = $2, programa = $3, tipo = $4, nivel = $5, 
+           graduado = $6, fecha = $7, archivo = $8
+       WHERE id = $9 RETURNING *`,
+      [empleado_id, institucionFinal, programaFinal, tipoFinal, nivelFinal, graduadoBoolean, fechaFinal, archivoFinal, id]
+    );
+
+    // Convertir boolean a string para el frontend
+    const formacion = {
+      ...result.rows[0],
+      graduado: result.rows[0].graduado ? "Sí" : "No"
+    };
+
+    res.json(formacion);
+  } catch (err) {
+    console.error("Error al actualizar formación:", err);
+    res.status(500).json({ error: "Error en el servidor" });
+  }
+});
+
 export default router;

@@ -13,7 +13,8 @@ const Experiencia = ({ empleado, onClose }) => {
     funciones: "",
     archivo: null,
   });
-  const [vistaPrevia, setVistaPrevia] = useState(null);
+  const [showValidation, setShowValidation] = useState(false);
+  const [editingExp, setEditingExp] = useState(null);
   const API_URL = "http://localhost:3000";
 
   const fmt = (iso) => (iso ? new Date(iso).toLocaleDateString("es-CO") : "");
@@ -44,13 +45,96 @@ const Experiencia = ({ empleado, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Activar validaciones visuales
+    setShowValidation(true);
+    
     if (!empleado?.id) {
       alert("Error: No se ha seleccionado un empleado.");
       return;
     }
     
+    // Validaciones específicas
+    if (!formData.empresa || formData.empresa.trim() === "") {
+      alert("Error: La empresa es obligatoria");
+      return;
+    }
+
+    // Validar empresa (solo letras, espacios y algunos caracteres especiales)
+    const empresaRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.\(\)&]+$/;
+    if (!empresaRegex.test(formData.empresa)) {
+      alert("Error: La empresa solo puede contener letras, espacios, guiones, puntos, paréntesis y &");
+      return;
+    }
+
+    if (!formData.cargo || formData.cargo.trim() === "") {
+      alert("Error: El cargo es obligatorio");
+      return;
+    }
+
+    // Validar cargo (solo letras, espacios y algunos caracteres especiales)
+    const cargoRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.\(\)&]+$/;
+    if (!cargoRegex.test(formData.cargo)) {
+      alert("Error: El cargo solo puede contener letras, espacios, guiones, puntos, paréntesis y &");
+      return;
+    }
+
+    if (!formData.tipoVinculacion || formData.tipoVinculacion.trim() === "") {
+      alert("Error: El tipo de vinculación es obligatorio");
+      return;
+    }
+
+    if (!formData.fechaInicio) {
+      alert("Error: La fecha de inicio es obligatoria");
+      return;
+    }
+
+    if (!formData.fechaFin) {
+      alert("Error: La fecha de fin es obligatoria");
+      return;
+    }
+
+    // Validar fechas
+    const fechaInicio = new Date(formData.fechaInicio);
+    const fechaFin = new Date(formData.fechaFin);
+    const hoy = new Date();
+
+    if (fechaInicio > hoy) {
+      alert("Error: La fecha de inicio no puede ser futura");
+      return;
+    }
+
+    if (fechaFin > hoy) {
+      alert("Error: La fecha de fin no puede ser futura");
+      return;
+    }
+
+    if (fechaInicio > fechaFin) {
+      alert("Error: La fecha de inicio no puede ser posterior a la fecha de fin");
+      return;
+    }
+
+    // Validar que la experiencia no sea muy antigua (más de 100 años)
+    const fechaMinima = new Date();
+    fechaMinima.setFullYear(fechaMinima.getFullYear() - 100);
+    if (fechaInicio < fechaMinima) {
+      alert("Error: La fecha de inicio no puede ser anterior a 1924");
+      return;
+    }
+
+    if (!formData.funciones || formData.funciones.trim() === "") {
+      alert("Error: Las funciones son obligatorias");
+      return;
+    }
+
+    // Validar funciones (texto más libre, pero sin caracteres peligrosos)
+    const funcionesRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.\(\)&,;:!?]+$/;
+    if (!funcionesRegex.test(formData.funciones)) {
+      alert("Error: Las funciones contienen caracteres no válidos");
+      return;
+    }
+
     if (!formData.archivo) {
-      alert("Debes adjuntar un documento PDF.");
+      alert("Error: Debe adjuntar un documento PDF");
       return;
     }
 
@@ -78,63 +162,325 @@ const Experiencia = ({ empleado, onClose }) => {
     if (e.target.classList.contains("modal-overlay")) onClose();
   };
 
-  return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="experiencia-container" onClick={(e) => e.stopPropagation()}>
-        <h2>Experiencia Laboral - {empleado?.nombre || 'Empleado'}</h2>
+  const handleEdit = (exp) => {
+    setEditingExp(exp);
+    setFormData({
+      empresa: exp.empresa,
+      cargo: exp.cargo,
+      tipoVinculacion: exp.tipo_vinculacion,
+      fechaInicio: exp.fecha_inicio,
+      fechaFin: exp.fecha_salida,
+      funciones: exp.funciones,
+      archivo: null, // No pre-cargar archivo existente
+    });
+    setShowValidation(false);
+  };
 
-        <form className="experiencia-form" onSubmit={handleSubmit}>
-          <input name="empresa" value={formData.empresa} onChange={handleChange} placeholder="Empresa" required />
-          <input name="cargo" value={formData.cargo} onChange={handleChange} placeholder="Cargo" required />
-          <input name="tipoVinculacion" value={formData.tipoVinculacion} onChange={handleChange} placeholder="Tipo de vinculación" required />
-          <input type="date" name="fechaInicio" value={formData.fechaInicio} onChange={handleChange} required />
-          <input type="date" name="fechaFin" value={formData.fechaFin} onChange={handleChange} required />
-          <textarea className="full" name="funciones" value={formData.funciones} onChange={handleChange} placeholder="Funciones" required />
-          <input className="full" type="file" name="archivo" accept="application/pdf" onChange={handleChange} required />
-          <button className="btn-primary full" type="submit">Agregar Experiencia</button>
+  const handleCancelEdit = () => {
+    setEditingExp(null);
+    setFormData({
+      empresa: "",
+      cargo: "",
+      tipoVinculacion: "",
+      fechaInicio: "",
+      fechaFin: "",
+      funciones: "",
+      archivo: null,
+    });
+    setShowValidation(false);
+  };
+
+  const handleUpdateExp = async (e) => {
+    e.preventDefault();
+    
+    setShowValidation(true);
+    
+    if (!empleado?.id) {
+      alert("Error: No se ha seleccionado un empleado.");
+      return;
+    }
+    
+    // Validar campos obligatorios
+    if (!formData.empresa || !formData.cargo || !formData.tipoVinculacion || 
+        !formData.fechaInicio || !formData.fechaFin || !formData.funciones) {
+      alert("Por favor, complete todos los campos obligatorios.");
+      return;
+    }
+
+    const data = new FormData();
+    data.append('empleado_id', empleado.id);
+    
+    // Solo enviar campos que han sido modificados o que no están vacíos
+    if (formData.empresa) data.append('empresa', formData.empresa);
+    if (formData.cargo) data.append('cargo', formData.cargo);
+    if (formData.tipoVinculacion) data.append('tipoVinculacion', formData.tipoVinculacion);
+    if (formData.fechaInicio) data.append('fechaInicio', formData.fechaInicio);
+    if (formData.fechaFin) data.append('fechaFin', formData.fechaFin);
+    if (formData.funciones) data.append('funciones', formData.funciones);
+    if (formData.archivo) data.append('archivo', formData.archivo);
+
+    try {
+      const res = await axios.put(`${API_URL}/api/experiencia/${editingExp.id}`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      // Actualizar la lista de experiencias
+      const updatedExperiencias = experiencias.map(exp => 
+        exp.id === editingExp.id 
+          ? { ...res.data, archivoURL: res.data.soporte ? `${API_URL}/uploads/${res.data.soporte}` : exp.archivoURL }
+          : exp
+      );
+      setExperiencias(updatedExperiencias);
+      
+      handleCancelEdit();
+    } catch (err) {
+      console.error("Error al actualizar experiencia:", err);
+      alert("Error al actualizar la experiencia: " + (err.response?.data?.error || err.message));
+    }
+  };
+
+  return (
+    <div
+      className="modal-overlay"
+      onClick={handleOverlayClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="experiencia-title"
+    >
+      <div className="experiencia-container" onClick={(e) => e.stopPropagation()}>
+        <header>
+          <h2 id="experiencia-title">Experiencia Laboral - {empleado?.nombre || 'Empleado'}</h2>
+        </header>
+
+        <form className="experiencia-form" onSubmit={editingExp ? handleUpdateExp : handleSubmit} noValidate>
+          <div className="form-group">
+              <label htmlFor="empresa">Empresa *</label>
+              <input
+                id="empresa"
+                name="empresa"
+                value={formData.empresa}
+                onChange={handleChange}
+                placeholder="Nombre de la empresa"
+                required
+                aria-describedby="empresa-error"
+                aria-invalid={!formData.empresa && formData.empresa !== ''}
+              />
+              {showValidation && !editingExp && !formData.empresa && (
+                <div className="alert-error">
+                  <span className="alert-icon">⚠️</span>
+                  <span>Este campo es obligatorio</span>
+                </div>
+              )}
+              <div id="empresa-error" className="error-message" role="alert" aria-live="polite"></div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="cargo">Cargo *</label>
+              <input
+                id="cargo"
+                name="cargo"
+                value={formData.cargo}
+                onChange={handleChange}
+                placeholder="Cargo desempeñado"
+                required
+                aria-describedby="cargo-error"
+                aria-invalid={!formData.cargo && formData.cargo !== ''}
+              />
+              {showValidation && !editingExp && !formData.cargo && (
+                <div className="alert-error">
+                  <span className="alert-icon">⚠️</span>
+                  <span>Este campo es obligatorio</span>
+                </div>
+              )}
+              <div id="cargo-error" className="error-message" role="alert" aria-live="polite"></div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="tipoVinculacion">Tipo de vinculación *</label>
+              <input
+                id="tipoVinculacion"
+                name="tipoVinculacion"
+                value={formData.tipoVinculacion}
+                onChange={handleChange}
+                placeholder="Tipo de vinculación laboral"
+                required
+                aria-describedby="tipoVinculacion-error"
+                aria-invalid={!formData.tipoVinculacion && formData.tipoVinculacion !== ''}
+              />
+              {showValidation && !editingExp && !formData.tipoVinculacion && (
+                <div className="alert-error">
+                  <span className="alert-icon">⚠️</span>
+                  <span>Este campo es obligatorio</span>
+                </div>
+              )}
+              <div id="tipoVinculacion-error" className="error-message" role="alert" aria-live="polite"></div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="fechaInicio">Fecha de ingreso *</label>
+              <input
+                id="fechaInicio"
+                type="date"
+                name="fechaInicio"
+                value={formData.fechaInicio}
+                onChange={handleChange}
+                required
+                aria-describedby="fechaInicio-error"
+                aria-invalid={!formData.fechaInicio && formData.fechaInicio !== ''}
+              />
+              {showValidation && !editingExp && !formData.fechaInicio && (
+                <div className="alert-error">
+                  <span className="alert-icon">⚠️</span>
+                  <span>Este campo es obligatorio</span>
+                </div>
+              )}
+              <div id="fechaInicio-error" className="error-message" role="alert" aria-live="polite"></div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="fechaFin">Fecha de salida *</label>
+              <input
+                id="fechaFin"
+                type="date"
+                name="fechaFin"
+                value={formData.fechaFin}
+                onChange={handleChange}
+                required
+                aria-describedby="fechaFin-error"
+                aria-invalid={!formData.fechaFin && formData.fechaFin !== ''}
+              />
+              {showValidation && !editingExp && !formData.fechaFin && (
+                <div className="alert-error">
+                  <span className="alert-icon">⚠️</span>
+                  <span>Este campo es obligatorio</span>
+                </div>
+              )}
+              <div id="fechaFin-error" className="error-message" role="alert" aria-live="polite"></div>
+            </div>
+
+            <div className="form-group full">
+              <label htmlFor="funciones">Funciones desempeñadas *</label>
+              <textarea
+                id="funciones"
+                className="full"
+                name="funciones"
+                value={formData.funciones}
+                onChange={handleChange}
+                placeholder="Describe las funciones principales desempeñadas"
+                required
+                rows="4"
+                aria-describedby="funciones-error"
+                aria-invalid={!formData.funciones && formData.funciones !== ''}
+              />
+              {showValidation && !editingExp && !formData.funciones && (
+                <div className="alert-error">
+                  <span className="alert-icon">⚠️</span>
+                  <span>Este campo es obligatorio</span>
+                </div>
+              )}
+              <div id="funciones-error" className="error-message" role="alert" aria-live="polite"></div>
+            </div>
+
+            <div className="form-group full">
+              <label htmlFor="archivo">Documento de soporte (PDF) *</label>
+              <input
+                id="archivo"
+                className="full"
+                type="file"
+                name="archivo"
+                accept="application/pdf"
+                onChange={handleChange}
+                required
+                aria-describedby="archivo-error archivo-help"
+                aria-invalid={!formData.archivo && formData.archivo !== null}
+              />
+              <div id="archivo-help" className="help-text">Solo se permiten archivos PDF</div>
+              {showValidation && !editingExp && !formData.archivo && (
+                <div className="alert-error">
+                  <span className="alert-icon">⚠️</span>
+                  <span>Debe adjuntar un documento PDF</span>
+                </div>
+              )}
+              <div id="archivo-error" className="error-message" role="alert" aria-live="polite"></div>
+            </div>
+
+            <div className="form-buttons">
+              <button className="btn-primary full" type="submit" aria-describedby="submit-help">
+                {editingExp ? 'Actualizar Experiencia' : 'Agregar Experiencia'}
+              </button>
+              {editingExp && (
+                <button type="button" className="cancel-btn" onClick={handleCancelEdit}>
+                  Cancelar
+                </button>
+              )}
+            </div>
+            <div id="submit-help" className="help-text">Los campos marcados con * son obligatorios</div>
         </form>
 
         {experiencias.length > 0 && (
-          <table className="experiencia-table">
+          <section aria-labelledby="tabla-experiencias-title">
+            <h3 id="tabla-experiencias-title" className="sr-only">Lista de experiencias laborales registradas</h3>
+            <div className="table-container">
+              <table className="experiencia-table" role="table" aria-label="Experiencias laborales">
+                <caption className="sr-only">
+                  Tabla con {experiencias.length} experiencia{experiencias.length !== 1 ? 's' : ''} laboral{experiencias.length !== 1 ? 'es' : ''} registrada{experiencias.length !== 1 ? 's' : ''}
+                </caption>
             <thead>
-              <tr>
-                <th>Empresa</th>
-                <th>Cargo</th>
-                <th>Tipo Vinculación</th>
-                <th>Fecha Ingreso</th>
-                <th>Fecha Salida</th>
-                <th>Funciones</th>
-                <th>Documento</th>
+                  <tr role="row">
+                    <th scope="col" role="columnheader">Empresa</th>
+                    <th scope="col" role="columnheader">Cargo</th>
+                    <th scope="col" role="columnheader">Tipo Vinculación</th>
+                    <th scope="col" role="columnheader">Fecha Ingreso</th>
+                    <th scope="col" role="columnheader">Fecha Salida</th>
+                    <th scope="col" role="columnheader">Funciones</th>
+                    <th scope="col" role="columnheader">Documento</th>
               </tr>
             </thead>
             <tbody>
               {experiencias.map((exp, idx) => (
-                <tr key={idx}>
-                  <td>{exp.empresa}</td>
-                  <td>{exp.cargo}</td>
-                  <td>{exp.tipo_vinculacion}</td>
-                  <td>{fmt(exp.fecha_inicio)}</td>
-                  <td>{fmt(exp.fecha_salida)}</td>
-                  <td>{exp.funciones}</td>
-                  <td>
-                    <button className="ver-btn" onClick={() => setVistaPrevia(exp.archivoURL)}>Ver PDF</button>
+                    <tr key={exp.id || idx} role="row">
+                      <td role="cell">{exp.empresa}</td>
+                      <td role="cell">{exp.cargo}</td>
+                      <td role="cell">{exp.tipo_vinculacion}</td>
+                      <td role="cell">{fmt(exp.fecha_inicio)}</td>
+                      <td role="cell">{fmt(exp.fecha_salida)}</td>
+                      <td role="cell">{exp.funciones}</td>
+                      <td role="cell">
+                        <div className="action-buttons">
+                          <a
+                            href={exp.archivoURL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ver-btn"
+                            aria-label={`Ver documento PDF de experiencia en ${exp.empresa}`}
+                            title="Ver documento PDF"
+                          >
+                            Ver PDF
+                          </a>
+                          <button onClick={() => handleEdit(exp)} className="edit-btn">
+                            Editar
+                          </button>
+                        </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        )}
-
-        <button className="cerrar-formacion-btn" onClick={onClose}>Cerrar</button>
-
-        {vistaPrevia && (
-          <div className="pdf-modal">
-            <div className="pdf-modal-content">
-              <button className="cerrar-pdf" onClick={() => setVistaPrevia(null)}>X</button>
-              <iframe src={vistaPrevia} title="PDF" width="100%" height="500px" />
             </div>
-          </div>
+          </section>
         )}
+
+        <footer>
+          <button
+            className="cerrar-formacion-btn"
+            onClick={onClose}
+            aria-label="Cerrar modal de experiencia laboral"
+            title="Cerrar ventana"
+          >
+            Cerrar
+          </button>
+        </footer>
+
       </div>
     </div>
   );

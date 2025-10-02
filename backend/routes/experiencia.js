@@ -73,4 +73,61 @@ router.get('/', async (req, res) => {
   }
 });
 
+// PUT: actualizar experiencia
+router.put('/:id', upload.single('archivo'), async (req, res) => {
+  const { id } = req.params;
+  const {
+    empleado_id,
+    empresa,
+    cargo,
+    tipoVinculacion,
+    fechaInicio,
+    fechaFin,
+    funciones
+  } = req.body;
+
+  const soporte = req.file ? req.file.filename : null;
+
+  if (!empleado_id) {
+    return res.status(400).json({ error: 'empleado_id es requerido' });
+  }
+
+  try {
+    // Primero obtener los datos actuales
+    const currentResult = await pool.query('SELECT * FROM experiencia WHERE id = $1', [id]);
+    if (currentResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Experiencia no encontrada' });
+    }
+
+    const current = currentResult.rows[0];
+
+    // Usar valores nuevos si se proporcionan, sino mantener los existentes
+    const empresaFinal = empresa || current.empresa;
+    const cargoFinal = cargo || current.cargo;
+    const tipoVinculacionFinal = tipoVinculacion || current.tipo_vinculacion;
+    const fechaInicioFinal = fechaInicio || current.fecha_inicio;
+    const fechaFinFinal = fechaFin || current.fecha_salida;
+    const funcionesFinal = funciones || current.funciones;
+    const soporteFinal = soporte || current.soporte;
+
+    // Validar que los campos obligatorios no estén vacíos
+    if (!empresaFinal || !cargoFinal || !tipoVinculacionFinal || !fechaInicioFinal || !fechaFinFinal || !funcionesFinal || !soporteFinal) {
+      return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    const result = await pool.query(
+      `UPDATE experiencia 
+       SET empleado_id = $1, empresa = $2, cargo = $3, tipo_vinculacion = $4, 
+           fecha_inicio = $5, fecha_salida = $6, funciones = $7, soporte = $8
+       WHERE id = $9 RETURNING *`,
+      [empleado_id, empresaFinal, cargoFinal, tipoVinculacionFinal, fechaInicioFinal, fechaFinFinal, funcionesFinal, soporteFinal, id]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error al actualizar experiencia:', error);
+    res.status(500).json({ error: 'Error al actualizar experiencia' });
+  }
+});
+
 export default router;

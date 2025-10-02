@@ -10,14 +10,14 @@ const InformacionPersonal = ({ empleado, onClose }) => {
     documentoPdf: null,
     nombres: "",
     apellidos: "",
-    genero: "",
+    genero: "Seleccionar género...",
     fechaNacimiento: "",
     departamentoNacimiento: "",
     ciudadNacimiento: "",
     email: "",
     direccion: "",
     telefono: "",
-    rh: "",
+    rh: "Seleccionar RH...",
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -55,14 +55,14 @@ const InformacionPersonal = ({ empleado, onClose }) => {
           documentoPdf: null, // No cargamos el archivo existente
           nombres: existingData.nombres || "",
           apellidos: existingData.apellidos || "",
-          genero: existingData.genero || "",
+          genero: existingData.genero || "Seleccionar género...",
           fechaNacimiento: formatDateForInput(existingData.fecha_nacimiento),
           departamentoNacimiento: existingData.departamento_nacimiento || "",
           ciudadNacimiento: existingData.ciudad_nacimiento || "",
           email: existingData.email || "",
           direccion: existingData.direccion || "",
           telefono: existingData.telefono || "",
-          rh: existingData.rh || "",
+          rh: existingData.rh || "Seleccionar RH...",
         });
         
         // Guardar información del PDF existente
@@ -113,6 +113,104 @@ const InformacionPersonal = ({ empleado, onClose }) => {
 
     if (!empleado?.id) {
       alert("Error: No se ha seleccionado un empleado");
+      return;
+    }
+
+    // Validaciones específicas de campos
+    if (!formData.tipoDocumento || formData.tipoDocumento.trim() === "") {
+      alert("Error: El tipo de documento es obligatorio");
+      return;
+    }
+
+    if (!formData.numeroIdentificacion || formData.numeroIdentificacion.trim() === "") {
+      alert("Error: El número de identificación es obligatorio");
+      return;
+    }
+
+    // Validar formato de cédula (solo números, entre 6 y 12 dígitos)
+    const cedulaRegex = /^\d{6,12}$/;
+    if (!cedulaRegex.test(formData.numeroIdentificacion)) {
+      alert("Error: El número de identificación debe contener solo números (6-12 dígitos)");
+      return;
+    }
+
+    if (!formData.fechaExpedicion) {
+      alert("Error: La fecha de expedición es obligatoria");
+      return;
+    }
+
+    if (!formData.nombres || formData.nombres.trim() === "") {
+      alert("Error: Los nombres son obligatorios");
+      return;
+    }
+
+    // Validar nombres (solo letras y espacios)
+    const nombresRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!nombresRegex.test(formData.nombres)) {
+      alert("Error: Los nombres solo pueden contener letras y espacios");
+      return;
+    }
+
+    if (!formData.apellidos || formData.apellidos.trim() === "") {
+      alert("Error: Los apellidos son obligatorios");
+      return;
+    }
+
+    // Validar apellidos (solo letras y espacios)
+    if (!nombresRegex.test(formData.apellidos)) {
+      alert("Error: Los apellidos solo pueden contener letras y espacios");
+      return;
+    }
+
+    if (!formData.genero || formData.genero === "Seleccionar género...") {
+      alert("Error: Debe seleccionar un género");
+      return;
+    }
+
+    if (!formData.fechaNacimiento) {
+      alert("Error: La fecha de nacimiento es obligatoria");
+      return;
+    }
+
+    // Validar que la fecha de nacimiento no sea futura
+    const fechaNacimiento = new Date(formData.fechaNacimiento);
+    const hoy = new Date();
+    if (fechaNacimiento > hoy) {
+      alert("Error: La fecha de nacimiento no puede ser futura");
+      return;
+    }
+
+    if (!formData.departamentoNacimiento || formData.departamentoNacimiento.trim() === "") {
+      alert("Error: El departamento de nacimiento es obligatorio");
+      return;
+    }
+
+    if (!formData.ciudadNacimiento || formData.ciudadNacimiento.trim() === "") {
+      alert("Error: La ciudad de nacimiento es obligatoria");
+      return;
+    }
+
+    // Validar email si se proporciona
+    if (formData.email && formData.email.trim() !== "") {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(formData.email)) {
+        alert("Error: El formato del email no es válido. Debe contener @ y un dominio válido (.com, .co, .org, etc.)");
+        return;
+      }
+    }
+
+    // Validar teléfono si se proporciona
+    if (formData.telefono && formData.telefono.trim() !== "") {
+      const telefonoRegex = /^\d{7,15}$/;
+      if (!telefonoRegex.test(formData.telefono)) {
+        alert("Error: El teléfono debe contener solo números (7-15 dígitos)");
+        return;
+      }
+    }
+
+    // Validar RH si se proporciona
+    if (formData.rh && formData.rh === "Seleccionar RH...") {
+      alert("Error: Si proporciona RH, debe seleccionar una opción válida");
       return;
     }
 
@@ -218,6 +316,13 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="numeroIdentificacion"
               value={formData.numeroIdentificacion}
               onChange={handleChange}
+              pattern="[0-9]{6,12}"
+              title="Solo números, entre 6 y 12 dígitos"
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                  e.preventDefault();
+                }
+              }}
               required
             />
           </label>
@@ -240,6 +345,8 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="nombres"
               value={formData.nombres}
               onChange={handleChange}
+              pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+              title="Solo letras y espacios"
               required
             />
           </label>
@@ -251,6 +358,8 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="apellidos"
               value={formData.apellidos}
               onChange={handleChange}
+              pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+              title="Solo letras y espacios"
               required
             />
           </label>
@@ -263,7 +372,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               onChange={handleChange}
               required
             >
-              <option value="">Selecciona</option>
+              <option value="Seleccionar género..." disabled>Seleccionar género...</option>
               <option value="Masculino">Masculino</option>
               <option value="Femenino">Femenino</option>
               <option value="Otro">Otro</option>
@@ -312,6 +421,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               value={formData.email}
               onChange={handleChange}
               placeholder="correo@dominio.com"
+              title="Formato de email válido"
             />
           </label>
 
@@ -334,13 +444,20 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               value={formData.telefono}
               onChange={handleChange}
               placeholder="3001234567"
+              pattern="[0-9]{7,15}"
+              title="Solo números, entre 7 y 15 dígitos"
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                  e.preventDefault();
+                }
+              }}
             />
           </label>
 
           <label>
             RH:
             <select name="rh" value={formData.rh} onChange={handleChange}>
-              <option value="">Selecciona</option>
+              <option value="Seleccionar RH..." disabled>Seleccionar RH...</option>
               <option value="O+">O+</option>
               <option value="O-">O-</option>
               <option value="A+">A+</option>
@@ -364,16 +481,16 @@ const InformacionPersonal = ({ empleado, onClose }) => {
                 <div className="pdf-info">
                   <span className="pdf-name">📄 {existingPdf}</span>
                   <div className="pdf-actions">
-                    <a 
+                    <a
                       href={`http://localhost:3000/uploads/${existingPdf}`} 
-                      target="_blank" 
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="view-pdf-btn"
                     >
                       Ver PDF
                     </a>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={handleReplacePdf}
                       className="replace-pdf-btn"
                     >

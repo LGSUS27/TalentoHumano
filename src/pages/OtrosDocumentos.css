@@ -22,7 +22,7 @@
 .otros-docs-modal h2 {
   text-align: center;
   margin-bottom: 1.5rem;
-  color: #2d6a4f;
+  color: #00695C;
 }
 
 .otros-docs-form {
@@ -53,39 +53,39 @@
 }
 
 .otros-docs-buttons button {
-  padding: 0.7rem 1.2rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
+  padding: 0.7rem 1.2rem !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-size: 1rem !important;
+  cursor: pointer !important;
+  font-weight: bold !important;
+  transition: all 0.3s ease !important;
+  margin-top: 0 !important;
+  display: inline-block !important;
+  justify-content: center !important;
 }
 
-.guardar-btn {
-  background-color: #28a745; /* verde */
-  color: white;
-  padding: 8px 16px;          /* igual que cerrar */
-  font-size: 14px;            /* igual que cerrar */
-  border: none;
-  border-radius: 6px;         /* igual que cerrar */
-  cursor: pointer;
-  font-weight: bold;
+.otros-docs-modal .guardar-btn {
+  background-color: #00695C !important;
+  color: white !important;
 }
 
-
-.cerrar-btn {
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 6px;
-  font-weight: bold;
+.otros-docs-modal .cerrar-btn {
+  background-color: #00695C !important;
+  color: white !important;
 }
 
 
-.guardar-btn:hover {
-  background-color: #1b4332;
+.otros-docs-modal .guardar-btn:hover {
+  background-color: #004d40 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 105, 92, 0.3) !important;
 }
 
-.cerrar-btn:hover {
-  background-color: #5a6268;
+.otros-docs-modal .cerrar-btn:hover {
+  background-color: #004d40 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 105, 92, 0.3) !important;
 }
 
 .archivo-actual{

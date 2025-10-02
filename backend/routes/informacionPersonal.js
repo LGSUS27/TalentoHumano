@@ -79,13 +79,87 @@ router.post("/", upload.single("documentoPdf"), async (req, res) => {
     !nombres ||
     !apellidos ||
     !genero ||
+    genero === "Seleccionar género..." ||
     !fechaNacimiento ||
     !departamentoNacimiento ||
-    !ciudadNacimiento
+    !ciudadNacimiento ||
+    (rh && rh === "Seleccionar RH...")
   ) {
     return res.status(400).json({
       success: false,
       message: "Faltan campos obligatorios.",
+    });
+  }
+
+  // Validaciones específicas de formato
+  const cedulaRegex = /^\d{6,12}$/;
+  if (!cedulaRegex.test(numeroIdentificacion)) {
+    return res.status(400).json({
+      success: false,
+      message: "El número de identificación debe contener solo números (6-12 dígitos).",
+    });
+  }
+
+  const nombresRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+  if (!nombresRegex.test(nombres)) {
+    return res.status(400).json({
+      success: false,
+      message: "Los nombres solo pueden contener letras y espacios.",
+    });
+  }
+
+  if (!nombresRegex.test(apellidos)) {
+    return res.status(400).json({
+      success: false,
+      message: "Los apellidos solo pueden contener letras y espacios.",
+    });
+  }
+
+  // Validar email si se proporciona
+  if (email && email.trim() !== "") {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "El formato del email no es válido. Debe contener @ y un dominio válido (.com, .co, .org, etc.).",
+      });
+    }
+  }
+
+  // Validar teléfono si se proporciona
+  if (telefono && telefono.trim() !== "") {
+    const telefonoRegex = /^\d{7,15}$/;
+    if (!telefonoRegex.test(telefono)) {
+      return res.status(400).json({
+        success: false,
+        message: "El teléfono debe contener solo números (7-15 dígitos).",
+      });
+    }
+  }
+
+  // Validar fechas
+  const fechaExpedicionDate = new Date(fechaExpedicion);
+  const fechaNacimientoDate = new Date(fechaNacimiento);
+  const hoy = new Date();
+
+  if (fechaExpedicionDate > hoy) {
+    return res.status(400).json({
+      success: false,
+      message: "La fecha de expedición no puede ser futura.",
+    });
+  }
+
+  if (fechaNacimientoDate > hoy) {
+    return res.status(400).json({
+      success: false,
+      message: "La fecha de nacimiento no puede ser futura.",
+    });
+  }
+
+  if (fechaNacimientoDate > fechaExpedicionDate) {
+    return res.status(400).json({
+      success: false,
+      message: "La fecha de nacimiento no puede ser posterior a la fecha de expedición.",
     });
   }
 
@@ -107,6 +181,24 @@ router.post("/", upload.single("documentoPdf"), async (req, res) => {
   }
 
   try {
+    console.log("Datos recibidos:", {
+      empleado_id,
+      tipoDocumento,
+      numeroIdentificacion,
+      fechaExpedicion,
+      nombres,
+      apellidos,
+      genero,
+      fechaNacimiento,
+      departamentoNacimiento,
+      ciudadNacimiento,
+      email,
+      direccion,
+      telefono,
+      rh,
+      documentoPdf
+    });
+
     // Verificar si ya existe información personal para este empleado
     const existingQuery = await pool.query(
       "SELECT id FROM informacion_personal WHERE empleado_id = $1",

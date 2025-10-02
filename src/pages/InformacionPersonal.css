@@ -67,7 +67,7 @@
 
 .info-form input:focus,
 .info-form select:focus {
-  border-color: #477e78;
+  border-color: #00695C;
   box-shadow: 0 0 0 3px rgba(71, 126, 120, 0.15);
 }
 
@@ -75,34 +75,51 @@
 .form-buttons {
   grid-column: 1 / -1;
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
   margin-top: 1.25rem;
+  flex-wrap: wrap;
 }
 
 .guardar-btn,
 .cancelar-btn {
-  padding: 0.7rem 2rem;
-  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
   border: none;
   border-radius: 8px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: filter .2s ease, background-color .2s ease;
+  transition: all 0.3s ease;
+  height: 42px;
+  min-width: 180px;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .guardar-btn {
-  background-color: #477e78;
+  background-color: #00695C;
   color: white;
 }
-.guardar-btn:hover { filter: brightness(.94); }
+.guardar-btn:hover {
+  background-color: #004d40;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 105, 92, 0.3);
+}
 .guardar-btn:disabled { opacity: .7; cursor: not-allowed; }
 
 .cancelar-btn {
-  background-color: #d35a2a;
+  background-color: #00695C;
   color: white;
 }
-.cancelar-btn:hover { filter: brightness(.94); }
+.cancelar-btn:hover {
+  background-color: #004d40;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 105, 92, 0.3);
+}
+.cancelar-btn:disabled { opacity: .7; cursor: not-allowed; }
 
 /* ---------- Estilos para manejo de PDF ---------- */
 .pdf-section {
@@ -154,18 +171,25 @@
 
 .view-pdf-btn {
   padding: 0.4rem 0.8rem;
-  background-color: #007bff;
+  background-color: #00695C;
   color: white;
   text-decoration: none;
-  border-radius: 4px;
-  font-size: 0.85rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
   font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  height: 32px;
+  min-width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .view-pdf-btn:hover {
-  background-color: #0056b3;
+  background-color: #004d40;
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 105, 92, 0.3);
 }
 
 .replace-pdf-btn {
@@ -173,15 +197,22 @@
   background-color: #ffc107;
   color: #212529;
   border: none;
-  border-radius: 4px;
-  font-size: 0.85rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  height: 32px;
+  min-width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .replace-pdf-btn:hover {
   background-color: #e0a800;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
 }
 
 .pdf-upload-section {
@@ -199,15 +230,22 @@
   background-color: #6c757d;
   color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 0.85rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  height: 32px;
+  min-width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cancel-replace-btn:hover {
   background-color: #545b62;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
 }
 
 /* ---------- Responsive ---------- */

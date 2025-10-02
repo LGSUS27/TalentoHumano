@@ -29,20 +29,134 @@
   border: 1px solid #ccc;
 }
 
-.formacion-form button {
-  grid-column: span 2;
-  padding: 0.7rem;
-  background-color: #477e78;
+/* Form groups con labels */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+/* Alertas informativas */
+.alert-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-radius: 6px;
+  color: #1976d2;
+  font-size: 0.85rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Alertas de error */
+.alert-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 6px;
+  color: #d32f2f;
+  font-size: 0.85rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+.alert-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Asegurar que todos los inputs y selects tengan la misma altura */
+.formacion-form input,
+.formacion-form select {
+  height: 2.5rem; /* Altura fija para todos */
+  padding: 0.6rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+/* Botones del formulario */
+.form-buttons {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.submit-btn {
+  padding: 0.6rem 1.2rem;
+  background-color: #00695C;
   color: white;
-  font-weight: bold;
+  font-weight: 600;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  height: 42px;
+  width: fit-content;
+  min-width: 180px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.formacion-form button:hover {
-  background-color: #477e78;
+.submit-btn:hover {
+  background-color: #004d40;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 105, 92, 0.3);
+}
+
+.cancel-btn {
+  padding: 0.6rem 1.2rem;
+  background-color: #6c757d;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 42px;
+  min-width: 100px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancel-btn:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 }
 
 /* Tabla */
@@ -60,37 +174,82 @@
   font-size: 14px;
 }
 
-/* Botón Ver PDF */
-.ver-btn {
-  background-color: #007bff;
-  color: white;
-  padding: 0.3rem 0.7rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s;
+/* Botones de acción en la tabla */
+.action-buttons {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.ver-btn:hover {
-  background-color: #0056b3;
+.view-btn {
+  background-color: #00695C;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px;
+  height: 32px;
+}
+
+.view-btn:hover {
+  background-color: #004d40;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 105, 92, 0.3);
+  color: white;
+  text-decoration: none;
+}
+
+.edit-btn {
+  background-color: #ffc107;
+  color: #212529;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+  font-weight: 500;
+  min-width: 70px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-btn:hover {
+  background-color: #e0a800;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
 }
 
 /* Botón cerrar principal */
 .cerrar-formacion-btn {
   display: block;
   margin: 1.5rem auto 0;
-  background-color: #d35a2a;
+  background-color: #00695C;
   color: white;
   font-weight: bold;
   border: none;
   padding: 0.6rem 1.5rem;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s ease;
 }
 
 .cerrar-formacion-btn:hover {
-  background-color: darkred;
+  background-color: #004d40;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 105, 92, 0.3);
 }
 
 /* Fondo oscuro modal */
@@ -120,38 +279,3 @@
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Modal PDF */
-.pdf-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.pdf-modal-content {
-  background: white;
-  padding: 1rem;
-  width: 90%;
-  max-width: 900px;
-  position: relative;
-  border-radius: 10px;
-}
-
-.cerrar-pdf {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: red;
-  color: white;
-  font-weight: bold;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 5px;
-  cursor: pointer;
-}

@@ -55,18 +55,62 @@
   resize: vertical;
 }
 
-/* Botón principal (no afectes otros botones) */
+/* Botones del formulario */
+.form-buttons {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
 .experiencia-form .btn-primary{
-  background: #2d6a4f;
+  background: #00695C;
   color: #fff;
   border: none;
-  height: 40px;
+  height: 42px;
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
-  transition: filter .2s ease;
+  transition: all 0.3s ease;
+  width: fit-content;
+  min-width: 180px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.experiencia-form .btn-primary:hover{ filter: brightness(.92); }
+.experiencia-form .btn-primary:hover{
+  background: #004d40;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 105, 92, 0.3);
+}
+
+.cancel-btn {
+  padding: 0.6rem 1.2rem;
+  background-color: #6c757d;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 42px;
+  min-width: 100px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancel-btn:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
 
 /* Tabla compacta */
 .experiencia-table{
@@ -90,52 +134,215 @@
   font-weight: 700;
 }
 
-/* Botón Ver PDF */
+/* Botones de acción en la tabla */
+.action-buttons {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .ver-btn{
-  background: #457b9d;
+  background: #00695C;
   color: #fff;
-  padding: .35rem .7rem;
+  padding: 0.4rem 0.8rem;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: .85rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 70px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
-.ver-btn:hover{ filter: brightness(.92); }
+.ver-btn:hover{
+  background: #004d40;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 105, 92, 0.3);
+  color: #fff;
+  text-decoration: none;
+}
 
-/* Modal PDF */
-.pdf-modal{
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.6);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 10001;
-}
-.pdf-modal-content{
-  background: #fff;
-  padding: 1rem;
-  border-radius: 10px;
-  width: min(800px, 95vw);
-  position: relative;
-}
-.cerrar-pdf{
-  position: absolute; top: 10px; right: 15px;
-  background: #c62828; color: #fff;
-  border: none; border-radius: 50%;
-  width: 30px; height: 30px; font-weight: 700;
+.edit-btn {
+  background-color: #ffc107;
+  color: #212529;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+  font-weight: 500;
+  min-width: 70px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.edit-btn:hover {
+  background-color: #e0a800;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
 
 /* Botón cerrar módulo */
 .cerrar-formacion-btn{
   margin-top: 1rem;
-  background: #d35a2a;
-  color: #fff; border: none;
+  background: #00695C;
+  color: #fff;
   padding: .55rem 1rem;
   border-radius: 8px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
-.cerrar-formacion-btn:hover{ filter: brightness(.92); }
+.cerrar-formacion-btn:hover{
+  background: #004d40;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 105, 92, 0.3);
+}
 
 /* Responsive: 1 columna en móviles */
 @media (max-width: 640px){
   .experiencia-form{ grid-template-columns: 1fr; }
+}
+
+/* =======================
+  Accesibilidad
+======================= */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Grupos de formulario - heredan el grid del formulario padre */
+.form-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: 2px solid #00695C;
+  outline-offset: 2px;
+  border-color: #00695C;
+}
+
+/* Mensajes de error y ayuda */
+.error-message {
+  color: #d32f2f;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: none;
+}
+
+.help-text {
+  color: #666;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Alertas de validación */
+.alert-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 6px;
+  color: #d32f2f;
+  font-size: 0.85rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+.alert-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estados de validación */
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: #d32f2f;
+}
+
+input[aria-invalid="true"]:focus,
+textarea[aria-invalid="true"]:focus {
+  outline-color: #d32f2f;
+}
+
+/* Fieldset removido - ya no se usa */
+
+/* Tabla accesible */
+.table-container {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+/* Botones accesibles */
+button:focus {
+  outline: 2px solid #00695C;
+  outline-offset: 2px;
+}
+
+
+/* Responsive para accesibilidad */
+@media (max-width: 767px) {
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+  
+  .pdf-modal-content {
+    width: 95%;
+    height: 90vh;
+  }
 }

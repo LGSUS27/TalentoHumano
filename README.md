@@ -270,4 +270,4 @@ ON CONFLICT (username) DO UPDATE SET password = EXCLUDED.password;
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia ISC.
+Este proyecto está bajo la Licencia MPL.

@@ -4,7 +4,7 @@ import InformacionPersonal from "./InformacionPersonal";
 import Formacion from "./Formacion";
 import Experiencia from "./Experiencia";
 import OtrosDocumentos from "./OtrosDocumentos";
-import logoOftalmolaser from "../assets/oftalmolaser.png";
+import logoOftalmolaser from "../assets/logoblanco.png";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -141,6 +141,88 @@ const Dashboard = () => {
     e.preventDefault();
     const token = localStorage.getItem("token");
 
+    // Validaciones específicas
+    if (!formData.nombre || formData.nombre.trim() === "") {
+      alert("Error: El nombre es obligatorio");
+      return;
+    }
+
+    // Validar nombres (solo letras y espacios)
+    const nombresRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!nombresRegex.test(formData.nombre)) {
+      alert("Error: El nombre solo puede contener letras y espacios");
+      return;
+    }
+
+    if (!formData.cedula || formData.cedula.trim() === "") {
+      alert("Error: La cédula es obligatoria");
+      return;
+    }
+
+    // Validar formato de cédula (solo números, entre 6 y 12 dígitos)
+    const cedulaRegex = /^\d{6,12}$/;
+    if (!cedulaRegex.test(formData.cedula)) {
+      alert("Error: La cédula debe contener solo números (6-12 dígitos)");
+      return;
+    }
+
+    if (!formData.contrato || formData.contrato.trim() === "") {
+      alert("Error: El número de contrato es obligatorio");
+      return;
+    }
+
+    if (!formData.fecha_inicio) {
+      alert("Error: La fecha de inicio es obligatoria");
+      return;
+    }
+
+    if (!formData.fecha_fin) {
+      alert("Error: La fecha de fin es obligatoria");
+      return;
+    }
+
+    // Validar fechas
+    const fechaInicio = new Date(formData.fecha_inicio);
+    const fechaFin = new Date(formData.fecha_fin);
+    const hoy = new Date();
+
+    if (fechaInicio > hoy) {
+      alert("Error: La fecha de inicio no puede ser futura");
+      return;
+    }
+
+    if (fechaFin > hoy) {
+      alert("Error: La fecha de fin no puede ser futura");
+      return;
+    }
+
+    if (fechaInicio > fechaFin) {
+      alert("Error: La fecha de inicio no puede ser posterior a la fecha de fin");
+      return;
+    }
+
+    if (!formData.sueldo || formData.sueldo <= 0) {
+      alert("Error: El sueldo debe ser mayor a 0");
+      return;
+    }
+
+    if (!formData.tipo_contrato || formData.tipo_contrato === "") {
+      alert("Error: Debe seleccionar un tipo de contrato");
+      return;
+    }
+
+    if (!formData.cargo || formData.cargo.trim() === "") {
+      alert("Error: El cargo es obligatorio");
+      return;
+    }
+
+    // Validar cargo (solo letras, espacios y algunos caracteres especiales)
+    const cargoRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.]+$/;
+    if (!cargoRegex.test(formData.cargo)) {
+      alert("Error: El cargo solo puede contener letras, espacios, guiones y puntos");
+      return;
+    }
+
     try {
       const response = await fetch("http://localhost:3000/empleados", {
         method: "POST",
@@ -154,7 +236,7 @@ const Dashboard = () => {
       if (response.ok) {
         const newEmployee = await response.json();
 
-        // ✅ Usar SOLO lo que devuelve el backend (no usar || formData)
+        // Usar SOLO lo que devuelve el backend (no usar || formData)
         if (newEmployee?.empleado) {
           setEmployees((prev) => [...prev, newEmployee.empleado]);
         } else {
@@ -193,9 +275,9 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <header className="dashboard-header">
         <div className="header-left">
-          <img 
-            src={logoOftalmolaser} 
-            alt="Oftalmoláser Logo" 
+          <img
+            src={logoOftalmolaser}
+            alt="Oftalmoláser Logo"
             className="header-logo"
             onError={(e) => {
               e.target.style.display = 'none';
@@ -226,7 +308,8 @@ const Dashboard = () => {
         </div>
 
         <div className="employee-table-container">
-          <table className="employee-table tabla-empleados">
+          <div className="employee-table-wrapper">
+            <table className="employee-table tabla-empleados">
             <thead>
               <tr>
                 <th>Nombre</th>
@@ -275,6 +358,7 @@ const Dashboard = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </main>
 
@@ -284,32 +368,54 @@ const Dashboard = () => {
             <h3>Crear nuevo empleado</h3>
 
             <form className="empleado-form" onSubmit={handleSubmit}>
+              <label className="field">
+                <span className="field-title">Nombre completo *</span>
               <input
                 type="text"
                 name="nombre"
                 placeholder="Nombre completo"
                 value={formData.nombre}
                 onChange={handleInputChange}
+                pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                title="Solo letras y espacios"
                 required
               />
-              <input
-                type="text"
-                name="cedula"
-                placeholder="Cédula"
-                value={formData.cedula}
-                onChange={handleInputChange}
-                required
-              />
-              <input
-                type="text"
-                name="contrato"
-                placeholder="No. Contrato"
-                value={formData.contrato}
-                onChange={handleInputChange}
-                required
-              />
+              </label>
+              <label className="field">
+                <span className="field-title">Cédula *</span>
+                <input
+                  type="text"
+                  name="cedula"
+                  placeholder="Cédula"
+                  value={formData.cedula}
+                  onChange={handleInputChange}
+                  pattern="[0-9]{6,12}"
+                  title="Solo números, entre 6 y 12 dígitos"
+                  onKeyPress={(e) => {
+                    if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                      e.preventDefault();
+                    }
+                  }}
+                  required
+                />
+              </label>
+              <label className="field">
+                <span className="field-title">No. Contrato *</span>
+                <input
+                  type="text"
+                  name="contrato"
+                  placeholder="No. Contrato"
+                  value={formData.contrato}
+                  onChange={handleInputChange}
+                  onKeyPress={(e) => {
+                    if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                      e.preventDefault();
+                    }
+                  }}
+                  required
+                />
+              </label>
 
-              {/* 👉 Etiqueta visible: Fecha inicio */}
               <label className="field">
                 <span className="field-title">Fecha inicio</span>
                 <input
@@ -336,30 +442,51 @@ const Dashboard = () => {
                 />
               </label>
 
+              <label className="field">
+                <span className="field-title">Sueldo *</span>
               <input
                 type="number"
                 name="sueldo"
                 placeholder="Sueldo"
                 value={formData.sueldo}
                 onChange={handleInputChange}
+                min="1"
+                title="Solo números, debe ser mayor a 0"
+                onKeyPress={(e) => {
+                  if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                    e.preventDefault();
+                  }
+                }}
                 required
               />
-              <input
-                type="text"
-                name="tipo_contrato"
-                placeholder="Tipo de contrato"
-                value={formData.tipo_contrato}
-                onChange={handleInputChange}
-                required
-              />
+              </label>
+              <label className="field">
+                <span className="field-title">Tipo de contrato *</span>
+                <select
+                  name="tipo_contrato"
+                  value={formData.tipo_contrato}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="" disabled>Seleccione tipo de contrato</option>
+                  <option value="Prestación de servicios">Prestación de servicios</option>
+                  <option value="Laboral">Laboral</option>
+                  <option value="De aprendisaje">De aprendisaje</option>
+                </select>
+              </label>
+              <label className="field">
+                <span className="field-title">Cargo *</span>
               <input
                 type="text"
                 name="cargo"
                 placeholder="Cargo"
                 value={formData.cargo}
                 onChange={handleInputChange}
+                pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.]+"
+                title="Solo letras, espacios, guiones y puntos"
                 required
               />
+              </label>
 
               <button type="submit" className="guardar-btn">
                 Guardar empleado
