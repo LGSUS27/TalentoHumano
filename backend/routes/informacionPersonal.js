@@ -25,9 +25,21 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (_req, file, cb) => {
-  if (file.mimetype !== "application/pdf") {
-    return cb(new Error("Solo se permiten archivos PDF"));
+const fileFilter = (req, file, cb) => {
+  console.log('Procesando archivo:', file.fieldname, file.mimetype, file.originalname);
+  
+  const allowedMimes = [
+    "application/pdf",
+    "image/jpeg",
+    "image/jpg", 
+    "image/png",
+    "image/gif",
+    "image/webp"
+  ];
+  
+  if (!allowedMimes.includes(file.mimetype)) {
+    console.log('Tipo de archivo no permitido:', file.mimetype);
+    return cb(new Error("Solo se permiten archivos PDF e imágenes (JPG, PNG, GIF, WebP)"));
   }
   cb(null, true);
 };
@@ -38,11 +50,26 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
 });
 
+// Configuración para múltiples archivos
+const uploadMultiple = multer({
+  storage,
+  fileFilter,
+  limits: { 
+    fileSize: 10 * 1024 * 1024, // 10 MB por archivo
+    files: 2 // máximo 2 archivos (PDF e imagen)
+  },
+});
+
 /* =========================================
   POST /api/informacion-personal
   Crea un registro de información personal
    ========================================= */
-router.post("/", upload.single("documentoPdf"), async (req, res) => {
+router.post("/", uploadMultiple.fields([
+  { name: 'documentoPdf', maxCount: 1 },
+  { name: 'imagenPersonal', maxCount: 1 }
+]), async (req, res) => {
+  console.log('Archivos recibidos:', req.files);
+  console.log('Body recibido:', req.body);
   // Campos que llegan desde el frontend (camelCase)
   const {
     empleado_id,
@@ -61,7 +88,8 @@ router.post("/", upload.single("documentoPdf"), async (req, res) => {
     rh,
   } = req.body;
 
-  const documentoPdf = req.file?.filename || null;
+  const documentoPdf = req.files?.documentoPdf?.[0]?.filename || null;
+  const imagenPersonal = req.files?.imagenPersonal?.[0]?.filename || null;
 
   // Validar que se proporcione empleado_id
   if (!empleado_id) {
@@ -196,7 +224,8 @@ router.post("/", upload.single("documentoPdf"), async (req, res) => {
       direccion,
       telefono,
       rh,
-      documentoPdf
+      documentoPdf,
+      imagenPersonal
     });
 
     // Verificar si ya existe información personal para este empleado
@@ -214,23 +243,25 @@ router.post("/", upload.single("documentoPdf"), async (req, res) => {
           numero_identificacion = $2,
           fecha_expedicion = $3,
           documento_pdf = COALESCE($4, documento_pdf),
-          nombres = $5,
-          apellidos = $6,
-          genero = $7,
-          fecha_nacimiento = $8,
-          departamento_nacimiento = $9,
-          ciudad_nacimiento = $10,
-          email = $11,
-          direccion = $12,
-          telefono = $13,
-          rh = $14
-        WHERE empleado_id = $15
+          imagen_personal = COALESCE($5, imagen_personal),
+          nombres = $6,
+          apellidos = $7,
+          genero = $8,
+          fecha_nacimiento = $9,
+          departamento_nacimiento = $10,
+          ciudad_nacimiento = $11,
+          email = $12,
+          direccion = $13,
+          telefono = $14,
+          rh = $15
+        WHERE empleado_id = $16
         RETURNING *`,
         [
           tipoDocumento,
           numeroIdentificacion,
           fechaExpedicion,
           documentoPdf,
+          imagenPersonal,
           nombres,
           apellidos,
           genero,
@@ -253,6 +284,7 @@ router.post("/", upload.single("documentoPdf"), async (req, res) => {
           numero_identificacion,
           fecha_expedicion,
           documento_pdf,
+          imagen_personal,
           nombres,
           apellidos,
           genero,
@@ -265,7 +297,7 @@ router.post("/", upload.single("documentoPdf"), async (req, res) => {
           rh
         )
         VALUES (
-          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16
         )
         RETURNING *`,
         [
@@ -274,6 +306,7 @@ router.post("/", upload.single("documentoPdf"), async (req, res) => {
           numeroIdentificacion,
           fechaExpedicion,
           documentoPdf,
+          imagenPersonal,
           nombres,
           apellidos,
           genero,

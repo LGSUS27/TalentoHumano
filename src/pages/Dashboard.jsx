@@ -489,7 +489,7 @@ const Dashboard = () => {
                   <option value="" disabled>Seleccione tipo de contrato</option>
                   <option value="Prestación de servicios">Prestación de servicios</option>
                   <option value="Laboral">Laboral</option>
-                  <option value="De aprendisaje">De aprendisaje</option>
+                  <option value="De aprendizaje">De aprendizaje</option>
                 </select>
               </label>
               <label className="field">

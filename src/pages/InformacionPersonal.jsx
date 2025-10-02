@@ -8,6 +8,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
     numeroIdentificacion: "",
     fechaExpedicion: "",
     documentoPdf: null,
+    imagenPersonal: null,
     nombres: "",
     apellidos: "",
     genero: "Seleccionar género...",
@@ -23,7 +24,10 @@ const InformacionPersonal = ({ empleado, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [existingPdf, setExistingPdf] = useState(null);
+  const [existingImage, setExistingImage] = useState(null);
   const [showReplacePdf, setShowReplacePdf] = useState(false);
+  const [showReplaceImage, setShowReplaceImage] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
   const [hasInitialData, setHasInitialData] = useState(false);
 
   // Cargar datos existentes del empleado
@@ -53,6 +57,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
           numeroIdentificacion: existingData.numero_identificacion || "",
           fechaExpedicion: formatDateForInput(existingData.fecha_expedicion),
           documentoPdf: null, // No cargamos el archivo existente
+          imagenPersonal: null, // No cargamos el archivo existente
           nombres: existingData.nombres || "",
           apellidos: existingData.apellidos || "",
           genero: existingData.genero || "Seleccionar género...",
@@ -68,6 +73,11 @@ const InformacionPersonal = ({ empleado, onClose }) => {
         // Guardar información del PDF existente
         if (existingData.documento_pdf) {
           setExistingPdf(existingData.documento_pdf);
+        }
+        
+        // Guardar información de la imagen existente
+        if (existingData.imagen_personal) {
+          setExistingImage(existingData.imagen_personal);
         }
         
         // Marcar que ya se cargaron los datos iniciales
@@ -95,6 +105,24 @@ const InformacionPersonal = ({ empleado, onClose }) => {
         ...prev,
         documentoPdf: selectedFile,
       }));
+    } else if (type === "file" && name === "imagenPersonal") {
+      // Manejar imagen personal
+      const selectedFile = files?.[0] || null;
+      setFormData((prev) => ({
+        ...prev,
+        imagenPersonal: selectedFile,
+      }));
+      
+      // Crear preview de la imagen
+      if (selectedFile) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImagePreview(e.target.result);
+        };
+        reader.readAsDataURL(selectedFile);
+      } else {
+        setImagePreview(null);
+      }
     } else if (type !== "file") {
       // Para todos los otros campos que no sean archivos
       setFormData((prev) => ({
@@ -225,12 +253,21 @@ const InformacionPersonal = ({ empleado, onClose }) => {
     // Agregar empleado_id
     data.append('empleado_id', empleado.id);
     
-    // Agregar todos los campos del formulario
+    // Agregar todos los campos del formulario excepto archivos
     Object.entries(formData).forEach(([k, v]) => {
-      if (v !== null && v !== undefined && v !== "") {
+      if (v !== null && v !== undefined && v !== "" && k !== 'documentoPdf' && k !== 'imagenPersonal') {
         data.append(k, v);
       }
     });
+    
+    // Agregar archivos solo si existen
+    if (formData.documentoPdf) {
+      data.append('documentoPdf', formData.documentoPdf);
+    }
+    
+    if (formData.imagenPersonal) {
+      data.append('imagenPersonal', formData.imagenPersonal);
+    }
 
     try {
       setSubmitting(true);
@@ -279,6 +316,41 @@ const InformacionPersonal = ({ empleado, onClose }) => {
       ...prev,
       documentoPdf: null,
     }));
+  };
+
+  const handleReplaceImage = (e) => {
+    e.preventDefault(); // Prevenir el submit del formulario
+    e.stopPropagation(); // Prevenir la propagación del evento
+    console.log("Iniciando reemplazo de imagen");
+    setShowReplaceImage(true);
+    // Limpiar cualquier archivo previo del estado
+    setFormData((prev) => ({
+      ...prev,
+      imagenPersonal: null,
+    }));
+    setImagePreview(null);
+  };
+
+  const handleCancelReplaceImage = (e) => {
+    e.preventDefault(); // Prevenir el submit del formulario
+    e.stopPropagation(); // Prevenir la propagación del evento
+    console.log("Cancelando reemplazo de imagen");
+    setShowReplaceImage(false);
+    
+    // Limpiar el input de archivo del DOM
+    setTimeout(() => {
+      const fileInput = document.querySelector('input[name="imagenPersonal"]');
+      if (fileInput) {
+        fileInput.value = '';
+      }
+    }, 0);
+    
+    // Limpiar el archivo del estado del formulario
+    setFormData((prev) => ({
+      ...prev,
+      imagenPersonal: null,
+    }));
+    setImagePreview(null);
   };
 
   if (loading) {
@@ -516,6 +588,73 @@ const InformacionPersonal = ({ empleado, onClose }) => {
                     <button 
                       type="button" 
                       onClick={handleCancelReplace}
+                      className="cancel-replace-btn"
+                    >
+                      Cancelar reemplazo
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </label>
+        </div>
+
+        {/* Sección de Imagen Personal */}
+        <div className="image-section">
+          <label>
+            Imagen Personal:
+            
+            {/* Mostrar imagen existente solo si hay datos iniciales cargados */}
+            {hasInitialData && existingImage && !showReplaceImage && (
+              <div className="existing-image-section">
+                <div className="image-preview-container">
+                  <img 
+                    src={`http://localhost:3000/uploads/${existingImage}`}
+                    alt="Imagen personal existente"
+                    className="existing-image"
+                  />
+                  <div className="image-actions">
+                    <button
+                      type="button"
+                      onClick={handleReplaceImage}
+                      className="replace-image-btn"
+                    >
+                      Reemplazar imagen
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Mostrar input de archivo cuando no hay imagen existente o se está reemplazando */}
+            {hasInitialData && (!existingImage || showReplaceImage) && (
+              <div className="image-upload-section">
+                <div className="image-preview-container">
+                  {imagePreview ? (
+                    <img 
+                      src={imagePreview}
+                      alt="Preview de imagen"
+                      className="image-preview"
+                    />
+                  ) : (
+                    <div className="image-placeholder">
+                      <span>📷</span>
+                      <p>Selecciona una imagen</p>
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  name="imagenPersonal"
+                  accept="image/*"
+                  onChange={handleChange}
+                  className="image-input"
+                />
+                {showReplaceImage && (
+                  <div className="replace-actions">
+                    <button 
+                      type="button" 
+                      onClick={handleCancelReplaceImage}
                       className="cancel-replace-btn"
                     >
                       Cancelar reemplazo

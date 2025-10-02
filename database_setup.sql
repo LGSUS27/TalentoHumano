@@ -37,6 +37,7 @@ CREATE TABLE informacion_personal (
     numero_identificacion VARCHAR(20),
     fecha_expedicion DATE,
     documento_pdf VARCHAR(255),
+    imagen_personal VARCHAR(255),
     nombres VARCHAR(255),
     apellidos VARCHAR(255),
     genero VARCHAR(10),

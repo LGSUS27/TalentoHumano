@@ -248,6 +248,131 @@
   box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
 }
 
+/* ---------- Estilos para manejo de Imagen ---------- */
+.image-section {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.image-section label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  font-size: 0.95rem;
+  gap: 0.35rem;
+}
+
+.existing-image-section {
+  margin-top: 0.5rem;
+}
+
+.image-preview-container {
+  width: 400px;
+  height: 500px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.existing-image,
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  text-align: center;
+  height: 100%;
+}
+
+.image-placeholder span {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.image-placeholder p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.image-actions {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.replace-image-btn {
+  padding: 0.4rem 0.8rem;
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 32px;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.replace-image-btn:hover {
+  background-color: #e0a800;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.image-upload-section {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.image-input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background-color: white;
+  cursor: pointer;
+  width: 200px;
+}
+
+.image-input:hover {
+  border-color: #00695C;
+}
+
+.image-input:focus {
+  outline: none;
+  border-color: #00695C;
+  box-shadow: 0 0 0 3px rgba(71, 126, 120, 0.15);
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 600px) {
   .info-form { grid-template-columns: 1fr; }
@@ -264,5 +389,11 @@
   
   .pdf-actions {
     justify-content: center;
+  }
+  
+  .image-preview-container {
+    width: 100%;
+    max-width: 400px;
+    height: 400px;
   }
 }
