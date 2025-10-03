@@ -2,7 +2,7 @@
 
 Sistema web completo para la gestión de empleados desarrollado con React, Node.js y PostgreSQL. Incluye autenticación JWT, subida de archivos PDF y gestión completa de información de empleados.
 
-## 🚀 Características
+## Características
 
 - **Frontend**: React 18 con Vite (puerto 5173)
 - **Backend**: Express.js con Node.js (puerto 3000)
@@ -11,16 +11,30 @@ Sistema web completo para la gestión de empleados desarrollado con React, Node.
 - **Subida de archivos**: Multer para PDFs (límite 10MB)
 - **CORS**: Configurado para desarrollo local
 - **Rutas modulares**: API REST bien estructurada
+- **Sistema de alertas**: Notificaciones personalizadas con iconos SVG
+- **Validación en tiempo real**: Feedback inmediato en formularios
+- **UI/UX mejorada**: Modales responsivos y componentes modernos
+- **Gestión de sesiones**: Opción "Recordarme" con localStorage/sessionStorage
 
-## 📋 Módulos del Sistema
+## Módulos del Sistema
 
-1. **Dashboard Principal**: Gestión general de empleados
-2. **Información Personal**: Datos personales y documentos
-3. **Formación Académica**: Historial educativo
-4. **Experiencia Laboral**: Antecedentes profesionales
+1. **Dashboard Principal**: Gestión general de empleados con tabla fija y búsqueda
+2. **Información Personal**: Datos personales, documentos e imagen personal
+3. **Formación Académica**: Historial educativo con validaciones
+4. **Experiencia Laboral**: Antecedentes profesionales con soporte PDF
 5. **Otros Documentos**: Documentos adicionales (RUT, EPS, ARL, etc.)
 
-## 🛠️ Instalación y Configuración
+### Características de UI/UX
+
+- **Sistema de Alertas Unificado**: Notificaciones personalizadas con iconos SVG
+- **Validación en Tiempo Real**: Feedback inmediato en todos los formularios
+- **Modales Responsivos**: Adaptables a diferentes tamaños de pantalla
+- **Tabla Fija**: Header y acciones siempre visibles durante el scroll
+- **Búsqueda en Tiempo Real**: Filtrado instantáneo de empleados
+- **Confirmaciones Personalizadas**: Diálogos de confirmación modernos
+- **Gestión de Sesiones**: Opción "Recordarme" para persistencia de login
+
+## Instalación y Configuración
 
 ### Prerrequisitos
 
@@ -82,7 +96,7 @@ PORT=3000
 NODE_ENV=development
 ```
 
-**⚠️ IMPORTANTE**: Cambiar `admin123` por la contraseña real que pusiste durante la instalación de PostgreSQL.
+**IMPORTANTE**: Cambiar `admin123` por la contraseña real que pusiste durante la instalación de PostgreSQL.
 
 ### 5. Instalar Dependencias
 
@@ -129,7 +143,7 @@ npm run dev
 - **Frontend**: Se abrirá automáticamente en http://localhost:5173
 - **Login**: Usuario `admin`, Contraseña `admin123`
 
-## 🔐 Credenciales por Defecto
+## Credenciales por Defecto
 
 - **Usuario**: admin
 - **Contraseña**: admin123
@@ -152,15 +166,20 @@ npm run dev
 │   └── .env              # Variables de entorno (crear)
 ├── src/                   # Frontend React
 │   ├── components/        # Componentes reutilizables
-│   │   ├── Login.jsx      # Componente de autenticación
+│   │   ├── Login.jsx      # Componente de autenticación mejorado
 │   │   ├── ProtectedRoute.jsx # Protección de rutas
-│   │   └── Protected.jsx  # Componente protegido
+│   │   ├── Protected.jsx  # Componente protegido
+│   │   ├── Alert.jsx      # Sistema de alertas personalizado
+│   │   ├── AlertContainer.jsx # Contenedor de alertas
+│   │   └── ConfirmDialog.jsx # Diálogos de confirmación
 │   ├── pages/            # Páginas principales
-│   │   ├── Dashboard.jsx  # Dashboard principal
-│   │   ├── InformacionPersonal.jsx
-│   │   ├── Formacion.jsx
-│   │   ├── Experiencia.jsx
-│   │   └── OtrosDocumentos.jsx
+│   │   ├── Dashboard.jsx  # Dashboard principal con tabla fija
+│   │   ├── InformacionPersonal.jsx # Con select de ubicación
+│   │   ├── Formacion.jsx  # Con validaciones mejoradas
+│   │   ├── Experiencia.jsx # Con validaciones mejoradas
+│   │   └── OtrosDocumentos.jsx # Con confirmaciones personalizadas
+│   ├── hooks/            # Hooks personalizados
+│   │   └── useAlert.js    # Hook para manejo de alertas
 │   ├── App.jsx           # Componente principal con Router
 │   └── main.jsx          # Punto de entrada
 ├── database_setup.sql    # ✅ Script completo de BD
@@ -169,19 +188,6 @@ npm run dev
 ├── vite.config.js        # Configuración de Vite
 └── README.md            # Documentación creada y actualizada
 ```
-
-## 🔧 Archivos Creados/Modificados
-
-### ✅ Archivos Nuevos Creados:
-- `backend/routes/empleados.js` - API completa para gestión de empleados
-- `backend/.env` - Variables de entorno del backend
-- `.env` - Variables de entorno del frontend
-- `database_setup.sql` - Script completo de configuración de BD
-
-### ✅ Archivos Modificados:
-- `backend/package.json` - Agregadas dependencias `dotenv` y `uuid`
-- `backend/index.js` - Agregada ruta de empleados y configuración CORS
-- `README.md` - Documentación completa actualizada
 
 ## 🔧 API Endpoints
 
@@ -251,14 +257,6 @@ ON CONFLICT (username) DO UPDATE SET password = EXCLUDED.password;
 - CORS configurado para desarrollo local (localhost y 127.0.0.1)
 - Middleware de verificación JWT para rutas protegidas
 
-### Mejoras Implementadas:
-- ✅ API completa de empleados con CRUD
-- ✅ Manejo de errores mejorado con códigos de estado HTTP
-- ✅ Validación de campos requeridos
-- ✅ Subida de archivos con nombres únicos
-- ✅ Estructura de base de datos optimizada con índices
-- ✅ Variables de entorno para configuración segura
-- ✅ Documentación completa de instalación y configuración
 
 ### Estructura de Base de Datos:
 - **usuarios**: Autenticación del sistema
