@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import AlertContainer from "../components/AlertContainer";
+import useAlert from "../hooks/useAlert";
 import "./Formacion.css";
 
 const Formacion = ({ empleado, onClose }) => {
@@ -13,9 +15,11 @@ const Formacion = ({ empleado, onClose }) => {
     fecha: "",
     archivo: null,
   });
-  const [showValidation, setShowValidation] = useState(false);
   const [editingForm, setEditingForm] = useState(null);
   const API_URL = "http://localhost:3000";
+  
+  // Hook para manejar alertas
+  const { alerts, showSuccess, showError, removeAlert } = useAlert();
 
   useEffect(() => {
     const fetchFormaciones = async () => {
@@ -49,54 +53,53 @@ const Formacion = ({ empleado, onClose }) => {
     e.preventDefault();
     
     // Activar validaciones visuales
-    setShowValidation(true);
     
     if (!empleado?.id) {
-      alert("Error: No se ha seleccionado un empleado.");
+      showError("No se ha seleccionado un empleado.");
       return;
     }
     
     // Validaciones específicas
     if (!formData.institucion || formData.institucion.trim() === "") {
-      alert("Error: La institución es obligatoria");
+      showError("La institución es obligatoria");
       return;
     }
 
     // Validar institución (solo letras, espacios y algunos caracteres especiales)
     const institucionRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.\(\)]+$/;
     if (!institucionRegex.test(formData.institucion)) {
-      alert("Error: La institución solo puede contener letras, espacios, guiones, puntos y paréntesis");
+      showError("La institución solo puede contener letras, espacios, guiones, puntos y paréntesis");
       return;
     }
 
     if (!formData.programa || formData.programa.trim() === "") {
-      alert("Error: El programa es obligatorio");
+      showError("El programa es obligatorio");
       return;
     }
 
     // Validar programa (solo letras, espacios y algunos caracteres especiales)
     if (!institucionRegex.test(formData.programa)) {
-      alert("Error: El programa solo puede contener letras, espacios, guiones, puntos y paréntesis");
+      showError("El programa solo puede contener letras, espacios, guiones, puntos y paréntesis");
       return;
     }
 
     if (formData.tipo === "Seleccionar tipo...") {
-      alert("Error: Debe seleccionar un tipo de formación");
+      showError("Debe seleccionar un tipo de formación");
       return;
     }
 
     if (formData.nivel === "Seleccionar nivel...") {
-      alert("Error: Debe seleccionar un nivel educativo");
+      showError("Debe seleccionar un nivel educativo");
       return;
     }
 
     if (formData.graduado === "Seleccionar si es graduado...") {
-      alert("Error: Debe seleccionar si es graduado o no");
+      showError("Debe seleccionar si es graduado o no");
       return;
     }
 
     if (!formData.fecha) {
-      alert("Error: La fecha es obligatoria");
+      showError("La fecha es obligatoria");
       return;
     }
 
@@ -105,7 +108,7 @@ const Formacion = ({ empleado, onClose }) => {
     const hoy = new Date();
 
     if (fechaFormacion > hoy) {
-      alert("Error: La fecha no puede ser futura");
+      showError("La fecha no puede ser futura");
       return;
     }
 
@@ -113,12 +116,12 @@ const Formacion = ({ empleado, onClose }) => {
     const fechaMinima = new Date();
     fechaMinima.setFullYear(fechaMinima.getFullYear() - 100);
     if (fechaFormacion < fechaMinima) {
-      alert("Error: La fecha no puede ser anterior a 1924");
+      showError("La fecha no puede ser anterior a 1924");
       return;
     }
 
     if (!formData.archivo) {
-      alert("Error: Debe adjuntar un documento PDF");
+      showError("Debe adjuntar un documento PDF");
       return;
     }
 
@@ -150,7 +153,7 @@ const Formacion = ({ empleado, onClose }) => {
       });
     } catch (err) {
       console.error("Error al enviar datos:", err);
-      alert("Error al guardar la formación: " + (err.response?.data?.error || err.message));
+      showError("Error al guardar la formación: " + (err.response?.data?.error || err.message));
     }
   };
 
@@ -171,7 +174,6 @@ const Formacion = ({ empleado, onClose }) => {
       fecha: form.fecha,
       archivo: null, // No pre-cargar archivo existente
     });
-    setShowValidation(false);
   };
 
   const handleCancelEdit = () => {
@@ -185,16 +187,14 @@ const Formacion = ({ empleado, onClose }) => {
       fecha: "",
       archivo: null,
     });
-    setShowValidation(false);
   };
 
   const handleUpdateForm = async (e) => {
     e.preventDefault();
     
-    setShowValidation(true);
     
     if (!empleado?.id) {
-      alert("Error: No se ha seleccionado un empleado.");
+      showError("No se ha seleccionado un empleado.");
       return;
     }
     
@@ -204,7 +204,7 @@ const Formacion = ({ empleado, onClose }) => {
         formData.nivel === "Seleccionar nivel..." || 
         formData.graduado === "Seleccionar si es graduado..." || 
         !formData.fecha) {
-      alert("Por favor, complete todos los campos obligatorios.");
+      showError("Por favor, complete todos los campos obligatorios");
       return;
     }
 
@@ -226,8 +226,8 @@ const Formacion = ({ empleado, onClose }) => {
       });
 
       // Actualizar la lista de formaciones
-      const updatedFormaciones = formaciones.map(form => 
-        form.id === editingForm.id 
+      const updatedFormaciones = formaciones.map(form =>
+        form.id === editingForm.id
           ? { ...res.data, archivoURL: res.data.archivo ? `${API_URL}/uploads/${res.data.archivo}` : form.archivoURL }
           : form
       );
@@ -236,7 +236,7 @@ const Formacion = ({ empleado, onClose }) => {
       handleCancelEdit();
     } catch (err) {
       console.error("Error al actualizar formación:", err);
-      alert("Error al actualizar la formación: " + (err.response?.data?.error || err.message));
+      showError("Error al actualizar la formación: " + (err.response?.data?.error || err.message));
     }
   };
 
@@ -250,22 +250,10 @@ const Formacion = ({ empleado, onClose }) => {
             <div className="form-group">
               <label htmlFor="institucion">Institución *</label>
               <input type="text" name="institucion" placeholder="Institución" value={formData.institucion} onChange={handleChange} required />
-              {showValidation && !editingForm && !formData.institucion && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Este campo es obligatorio</span>
-                </div>
-              )}
             </div>
             <div className="form-group">
               <label htmlFor="programa">Programa *</label>
               <input type="text" name="programa" placeholder="Programa" value={formData.programa} onChange={handleChange} required />
-              {showValidation && !editingForm && !formData.programa && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Este campo es obligatorio</span>
-                </div>
-              )}
             </div>
             <div className="form-group">
               <label htmlFor="tipo">Tipo de formación *</label>
@@ -274,12 +262,6 @@ const Formacion = ({ empleado, onClose }) => {
                 <option value="Formal">Formal</option>
                 <option value="No formal">No formal</option>
               </select>
-              {showValidation && !editingForm && formData.tipo === "Seleccionar tipo..." && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Debe seleccionar un tipo de formación</span>
-                </div>
-              )}
             </div>
             <div className="form-group">
               <label htmlFor="nivel">Nivel educativo *</label>
@@ -293,12 +275,6 @@ const Formacion = ({ empleado, onClose }) => {
                 <option value="Maestria">Maestría</option>
                 <option value="Doctorado">Doctorado</option>
               </select>
-              {showValidation && !editingForm && formData.nivel === "Seleccionar nivel..." && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Debe seleccionar un nivel educativo</span>
-                </div>
-              )}
             </div>
             <div className="form-group">
               <label htmlFor="graduado">¿Graduado? *</label>
@@ -307,44 +283,14 @@ const Formacion = ({ empleado, onClose }) => {
                 <option value="Sí">Sí</option>
                 <option value="No">No</option>
               </select>
-              {showValidation && !editingForm && formData.graduado === "Seleccionar si es graduado..." && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Debe seleccionar si es graduado</span>
-                </div>
-              )}
-              {showValidation && !editingForm && formData.graduado === "Sí" && (
-                <div className="alert-info">
-                  <span className="alert-icon">ℹ️</span>
-                  <span>Debe adjuntar el documento de grado o diploma</span>
-                </div>
-              )}
-              {showValidation && !editingForm && formData.graduado === "No" && (
-                <div className="alert-info">
-                  <span className="alert-icon">ℹ️</span>
-                  <span>Debe adjuntar el certificado de que está estudiando</span>
-                </div>
-              )}
             </div>
             <div className="form-group">
               <label htmlFor="fecha">Fecha de terminación *</label>
               <input type="date" name="fecha" value={formData.fecha} onChange={handleChange} required />
-              {showValidation && !editingForm && !formData.fecha && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Debe seleccionar una fecha</span>
-                </div>
-              )}
             </div>
             <div className="form-group">
               <label htmlFor="archivo">Documento PDF *</label>
               <input type="file" name="archivo" accept="application/pdf" onChange={handleChange} required />
-              {showValidation && !editingForm && !formData.archivo && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Debe adjuntar un documento PDF</span>
-                </div>
-              )}
             </div>
             <div className="form-buttons">
               <button type="submit" className="submit-btn">
@@ -398,6 +344,9 @@ const Formacion = ({ empleado, onClose }) => {
         </div>
 
       </div>
+
+      {/* Contenedor de alertas */}
+      <AlertContainer alerts={alerts} onRemoveAlert={removeAlert} />
     </div>
   );
 };

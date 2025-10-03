@@ -4,6 +4,8 @@ import InformacionPersonal from "./InformacionPersonal";
 import Formacion from "./Formacion";
 import Experiencia from "./Experiencia";
 import OtrosDocumentos from "./OtrosDocumentos";
+import AlertContainer from "../components/AlertContainer";
+import useAlert from "../hooks/useAlert";
 import logoOftalmolaser from "../assets/logoblanco.png";
 import "./Dashboard.css";
 
@@ -17,11 +19,14 @@ const Dashboard = () => {
   const [showOtrosDocumentosModal, setShowOtrosDocumentosModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // Hook para manejar alertas
+  const { alerts, showSuccess, showError, removeAlert } = useAlert();
 
   // Estado del formulario (incluye cargo)
   const [formData, setFormData] = useState({
     nombre: "",
-    cedula: "",
+    numeroIdentificacion: "",
     contrato: "",
     fecha_inicio: "",
     fecha_fin: "",
@@ -135,8 +140,12 @@ const Dashboard = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    // Capitalizar automáticamente la primera letra del cargo
-    if (name === 'cargo' && value.length > 0) {
+    // Convertir a mayúsculas automáticamente para el campo contrato
+    if (name === 'contrato') {
+      setFormData((prev) => ({ ...prev, [name]: value.toUpperCase() }));
+    } 
+    // Capitalizar automáticamente las iniciales para el campo nombre
+    else if (name === 'nombre') {
       const palabras = value.split(' ');
       const palabrasCapitalizadas = palabras.map(palabra => {
         if (palabra.length > 0) {
@@ -150,47 +159,71 @@ const Dashboard = () => {
     }
   };
 
+  const handleKeyDown = (e) => {
+    const { name } = e.target;
+    
+    // Para campos de nombres, solo permitir letras y espacios
+    if (name === 'nombre') {
+      const allowedChars = /[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/;
+      if (!allowedChars.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+        e.preventDefault();
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
+    console.log("Token:", token);
+    console.log("Token length:", token ? token.length : 0);
+    console.log("Form data:", formData);
+    
+    if (!token) {
+      showError("No hay token de autenticación. Por favor, inicia sesión nuevamente.");
+      return;
+    }
 
+    // TEMPORAL: Comentar validaciones del frontend para probar mensajes del backend
+    /*
     // Validaciones específicas
     if (!formData.nombre || formData.nombre.trim() === "") {
-      alert("Error: El nombre es obligatorio");
+      showError("El nombre es obligatorio");
       return;
     }
 
     // Validar nombres (solo letras y espacios)
     const nombresRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
     if (!nombresRegex.test(formData.nombre)) {
-      alert("Error: El nombre solo puede contener letras y espacios");
+      showError("El nombre solo puede contener letras y espacios");
       return;
     }
 
-    if (!formData.cedula || formData.cedula.trim() === "") {
-      alert("Error: La cédula es obligatoria");
+    if (!formData.numeroIdentificacion || formData.numeroIdentificacion.trim() === "") {
+      showError("El número de identificación es obligatorio");
       return;
     }
 
-    // Validar formato de cédula (solo números, entre 6 y 12 dígitos)
+    // Validar formato de número de identificación (solo números, entre 6 y 12 dígitos)
     const cedulaRegex = /^\d{6,12}$/;
-    if (!cedulaRegex.test(formData.cedula)) {
-      alert("Error: La cédula debe contener solo números (6-12 dígitos)");
+    if (!cedulaRegex.test(formData.numeroIdentificacion)) {
+      showError("El número de identificación debe contener solo números (6-12 dígitos)");
       return;
     }
 
     if (!formData.contrato || formData.contrato.trim() === "") {
-      alert("Error: El número de contrato es obligatorio");
+      showError("El número de contrato es obligatorio");
       return;
     }
+    */
 
+    /*
     if (!formData.fecha_inicio) {
-      alert("Error: La fecha de inicio es obligatoria");
+      showError("La fecha de inicio es obligatoria");
       return;
     }
 
     if (!formData.fecha_fin) {
-      alert("Error: La fecha de fin es obligatoria");
+      showError("La fecha de fin es obligatoria");
       return;
     }
 
@@ -201,46 +234,31 @@ const Dashboard = () => {
     // La fecha de inicio no puede ser anterior a 2002
     const fechaMinimaInicio = new Date('2002-01-01');
     if (fechaInicio < fechaMinimaInicio) {
-      alert("Error: La fecha de inicio no puede ser anterior a 2002");
+      showError("La fecha de inicio no puede ser anterior a 2002");
       return;
     }
 
     // La fecha de fin solo debe ser posterior a la fecha de inicio
     if (fechaInicio > fechaFin) {
-      alert("Error: La fecha de inicio no puede ser posterior a la fecha de fin");
+      showError("La fecha de inicio no puede ser posterior a la fecha de fin");
       return;
     }
 
     if (!formData.sueldo || formData.sueldo <= 0) {
-      alert("Error: El sueldo debe ser mayor a 0");
+      showError("El sueldo debe ser mayor a 0");
       return;
     }
 
     if (!formData.tipo_contrato || formData.tipo_contrato === "") {
-      alert("Error: Debe seleccionar un tipo de contrato");
+      showError("Debe seleccionar un tipo de contrato");
       return;
     }
 
     if (!formData.cargo || formData.cargo.trim() === "") {
-      alert("Error: El cargo es obligatorio");
+      showError("El cargo es obligatorio");
       return;
     }
-
-    // Validar cargo (solo letras, espacios y algunos caracteres especiales)
-    const cargoRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.]+$/;
-    if (!cargoRegex.test(formData.cargo)) {
-      alert("Error: El cargo solo puede contener letras, espacios, guiones y puntos");
-      return;
-    }
-
-    // Validar que la primera letra del cargo sea mayúscula
-    if (formData.cargo && formData.cargo.trim() !== "") {
-      const primeraLetra = formData.cargo.trim().charAt(0);
-      if (primeraLetra !== primeraLetra.toUpperCase() || !/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(primeraLetra)) {
-        alert("Error: El cargo debe comenzar con una letra mayúscula");
-        return;
-      }
-    }
+    */
 
     try {
       const response = await fetch("http://localhost:3000/empleados", {
@@ -251,6 +269,9 @@ const Dashboard = () => {
         },
         body: JSON.stringify(formData),
       });
+
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
 
       if (response.ok) {
         const newEmployee = await response.json();
@@ -266,7 +287,7 @@ const Dashboard = () => {
         // Limpiar formulario y cerrar
         setFormData({
           nombre: "",
-          cedula: "",
+          numeroIdentificacion: "",
           contrato: "",
           fecha_inicio: "",
           fecha_fin: "",
@@ -275,12 +296,48 @@ const Dashboard = () => {
           cargo: "",
         });
         closeModal();
+        showSuccess("Empleado creado exitosamente");
       } else {
-        alert("Error al crear el empleado");
+        // Obtener el mensaje de error específico del backend
+        console.log("Error response status:", response.status);
+        
+        // Manejar errores de autenticación específicamente
+        if (response.status === 401) {
+          showError("Sesión expirada. Por favor, inicia sesión nuevamente.");
+          // Opcional: redirigir al login
+          // window.location.href = '/login';
+          return;
+        }
+        
+        if (response.status === 403) {
+          showError("No tienes permisos para realizar esta acción.");
+          return;
+        }
+        
+        try {
+          const errorData = await response.json();
+          console.log("Error data:", errorData);
+          const errorMessage = errorData?.message || "Error al crear el empleado";
+          showError(errorMessage);
+        } catch (parseError) {
+          console.log("Parse error:", parseError);
+          // Si no se puede parsear el JSON, mostrar mensaje genérico con código de estado
+          showError(`Error al crear el empleado (${response.status})`);
+        }
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Error en la comunicación con el servidor");
+      console.error("Error type:", error.name);
+      console.error("Error message:", error.message);
+      
+      // Determinar el tipo de error y mostrar mensaje específico
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        showError("Error de conexión: No se puede conectar con el servidor. Verifica que el backend esté ejecutándose.");
+      } else if (error.name === 'AbortError') {
+        showError("La petición fue cancelada");
+      } else {
+        showError(`Error inesperado: ${error.message}`);
+      }
     }
   };
 
@@ -350,7 +407,7 @@ const Dashboard = () => {
                       {emp.nombre}
                     </span>
                   </td>
-                  <td>{emp.cedula}</td>
+                  <td>{emp.numeroIdentificacion}</td>
                   <td>{emp.contrato}</td>
                   <td>{formatDate(emp.fecha_inicio)}</td>
                   <td>{formatDate(emp.fecha_fin)}</td>
@@ -395,22 +452,23 @@ const Dashboard = () => {
                 placeholder="Nombre completo"
                 value={formData.nombre}
                 onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
                 pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
                 title="Solo letras y espacios"
                 required
               />
               </label>
               <label className="field">
-                <span className="field-title">Cédula *</span>
+                <span className="field-title">Número de identificación *</span>
                 <input
                   type="text"
-                  name="cedula"
-                  placeholder="Cédula"
-                  value={formData.cedula}
+                  name="numeroIdentificacion"
+                  placeholder="Número de identificación"
+                  value={formData.numeroIdentificacion}
                   onChange={handleInputChange}
                   pattern="[0-9]{6,12}"
                   title="Solo números, entre 6 y 12 dígitos"
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
                       e.preventDefault();
                     }
@@ -426,11 +484,8 @@ const Dashboard = () => {
                   placeholder="No. Contrato"
                   value={formData.contrato}
                   onChange={handleInputChange}
-                  onKeyPress={(e) => {
-                    if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
-                      e.preventDefault();
-                    }
-                  }}
+                  pattern="[A-Z0-9\-]+"
+                  title="Solo letras, números y guiones (se convierten automáticamente a mayúsculas)"
                   required
                 />
               </label>
@@ -470,7 +525,7 @@ const Dashboard = () => {
                 onChange={handleInputChange}
                 min="1"
                 title="Solo números, debe ser mayor a 0"
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
                     e.preventDefault();
                   }
@@ -494,16 +549,48 @@ const Dashboard = () => {
               </label>
               <label className="field">
                 <span className="field-title">Cargo *</span>
-              <input
-                type="text"
+                <select
                 name="cargo"
-                placeholder="Cargo"
                 value={formData.cargo}
                 onChange={handleInputChange}
-                pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.]+"
-                title="Solo letras, espacios, guiones y puntos"
                 required
-              />
+                >
+                  <option value="" disabled>Seleccione un cargo</option>
+                  <option value="Asesor">Asesor</option>
+                  <option value="Agente de call center">Agente de call center</option>
+                  <option value="Analista de facturación y contratación">Analista de facturación y contratación</option>
+                  <option value="Aprendiz">Aprendiz</option>
+                  <option value="Asistente de facturación">Asistente de facturación</option>
+                  <option value="Auxiliar administrativo">Auxiliar administrativo</option>
+                  <option value="Auxiliar contable y financiero">Auxiliar contable y financiero</option>
+                  <option value="Auxiliar contable y Tesorería">Auxiliar contable y Tesorería</option>
+                  <option value="Auxiliar de archivo">Auxiliar de archivo</option>
+                  <option value="Auxiliar de droguería">Auxiliar de droguería</option>
+                  <option value="Auxiliar de enfermería">Auxiliar de enfermería</option>
+                  <option value="Auxiliar de farmacia">Auxiliar de farmacia</option>
+                  <option value="Auxiliar de óptica">Auxiliar de óptica</option>
+                  <option value="Auxiliar de servicios generales">Auxiliar de servicios generales</option>
+                  <option value="Auxiliar Siau">Auxiliar Siau</option>
+                  <option value="Coordinador asistencial">Coordinador asistencial</option>
+                  <option value="Coordinador contable y financiero">Coordinador contable y financiero</option>
+                  <option value="Coordinador de facturación y contratación">Coordinador de facturación y contratación</option>
+                  <option value="Coordinador administrativo">Coordinador administrativo</option>
+                  <option value="Coordinador de tics">Coordinador de tics</option>
+                  <option value="Cuidador">Cuidador</option>
+                  <option value="Gerente">Gerente</option>
+                  <option value="Gestor de servicios">Gestor de servicios</option>
+                  <option value="Gestor de servicios empresariales">Gestor de servicios empresariales</option>
+                  <option value="Instrumentador quirúrgico">Instrumentador quirúrgico</option>
+                  <option value="Jefe de cirugía">Jefe de cirugía</option>
+                  <option value="Jefe de talento humano">Jefe de talento humano</option>
+                  <option value="Líder de apoyo diagnóstico y terapéutico">Líder de apoyo diagnóstico y terapéutico</option>
+                  <option value="Médico especialista">Médico especialista</option>
+                  <option value="Optómetra">Optómetra</option>
+                  <option value="Orientador">Orientador</option>
+                  <option value="Regente de farmacia">Regente de farmacia</option>
+                  <option value="Subgerente administrativo">Subgerente administrativo</option>
+                  <option value="Supervisor call center">Supervisor call center</option>
+                </select>
               </label>
 
               <button type="submit" className="guardar-btn">
@@ -529,6 +616,9 @@ const Dashboard = () => {
       {showOtrosDocumentosModal && selectedEmployee && (
         <OtrosDocumentos empleado={selectedEmployee} onClose={closeOtrosDocumentosModal} />
       )}
+
+      {/* Contenedor de alertas */}
+      <AlertContainer alerts={alerts} onRemoveAlert={removeAlert} />
     </div>
   );
 };

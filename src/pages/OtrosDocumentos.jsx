@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import AlertContainer from "../components/AlertContainer";
+import ConfirmDialog from "../components/ConfirmDialog";
+import useAlert from "../hooks/useAlert";
 import "./OtrosDocumentos.css";
 
 const API = "http://localhost:3000/api";
@@ -26,6 +29,9 @@ const MAX_MB = 10;
 
 const OtrosDocumentos = ({ empleado, onClose }) => {
   const empleadoId = empleado?.id;
+  
+  // Hook para manejar alertas
+  const { alerts, showSuccess, showError, removeAlert } = useAlert();
 
   const initialArchivos = useMemo(
     () => Object.fromEntries(CAMPOS.map(c => [c.name, null])),
@@ -36,6 +42,8 @@ const OtrosDocumentos = ({ empleado, onClose }) => {
   const [existentes, setExistentes] = useState(null); // fila de otros_documentos o null
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
 
   const hayCambios = useMemo(
     () => Object.values(archivos).some(Boolean),
@@ -66,11 +74,11 @@ const OtrosDocumentos = ({ empleado, onClose }) => {
     const file = files?.[0] || null;
     if (file) {
       if (file.type !== "application/pdf") {
-        alert("Solo PDF.");
+        showError("Solo se permiten archivos PDF");
         return;
       }
       if (file.size > MAX_MB * 1024 * 1024) {
-        alert(`Máximo ${MAX_MB} MB`);
+        showError(`El archivo no puede superar ${MAX_MB} MB`);
         return;
       }
     }
@@ -79,8 +87,8 @@ const OtrosDocumentos = ({ empleado, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!empleadoId) return alert("Falta empleado_id");
-    if (!hayCambios) return alert("No seleccionaste archivos nuevos.");
+    if (!empleadoId) return showError("Falta empleado_id");
+    if (!hayCambios) return showError("No seleccionaste archivos nuevos");
 
     const data = new FormData();
     data.append("empleado_id", empleadoId);
@@ -97,28 +105,43 @@ const OtrosDocumentos = ({ empleado, onClose }) => {
       // el backend devuelve { success, data: row }
       setExistentes(resp?.data?.data || null);
       setArchivos(initialArchivos); // limpiar selección
-      alert("Documentos guardados ✅");
+      showSuccess("Documentos guardados exitosamente");
     } catch (err) {
       console.error("Error al enviar documentos:", err);
-      alert("Ocurrió un error al guardar los documentos ❌");
+      showError("Ocurrió un error al guardar los documentos");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleEliminar = async (campoName) => {
+  const handleEliminar = (campoName) => {
     if (!empleadoId) return;
-    const ok = window.confirm("¿Eliminar este documento? Esta acción no se puede deshacer.");
-    if (!ok) return;
+    setConfirmAction(() => () => eliminarDocumento(campoName));
+    setShowConfirm(true);
+  };
 
+  const eliminarDocumento = async (campoName) => {
     try {
       await axios.delete(`${API}/otros-documentos/empleado/${empleadoId}/campo/${campoName}`);
       setExistentes(prev => (prev ? { ...prev, [campoName]: null } : prev));
-      alert("Documento eliminado ✅");
+      showSuccess("Documento eliminado exitosamente");
     } catch (e) {
       console.error("Error al eliminar documento:", e);
-      alert("No se pudo eliminar el documento ❌");
+      showError("No se pudo eliminar el documento");
     }
+  };
+
+  const handleConfirm = () => {
+    if (confirmAction) {
+      confirmAction();
+    }
+    setShowConfirm(false);
+    setConfirmAction(null);
+  };
+
+  const handleCancelConfirm = () => {
+    setShowConfirm(false);
+    setConfirmAction(null);
   };
 
   const handleOverlayClick = (e) => {
@@ -191,6 +214,20 @@ const OtrosDocumentos = ({ empleado, onClose }) => {
           </form>
         )}
       </div>
+
+      {/* Contenedor de alertas */}
+      <AlertContainer alerts={alerts} onRemoveAlert={removeAlert} />
+
+      {/* Diálogo de confirmación */}
+      <ConfirmDialog
+        isOpen={showConfirm}
+        title="Confirmar eliminación"
+        message="¿Eliminar este documento? Esta acción no se puede deshacer."
+        onConfirm={handleConfirm}
+        onCancel={handleCancelConfirm}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };

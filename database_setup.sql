@@ -19,7 +19,7 @@ CREATE TABLE usuarios (
 CREATE TABLE empleados (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
-    cedula VARCHAR(20) UNIQUE NOT NULL,
+    numeroIdentificacion VARCHAR(20) UNIQUE NOT NULL,
     contrato VARCHAR(50),
     fecha_inicio DATE,
     fecha_fin DATE,
@@ -103,7 +103,7 @@ CREATE TABLE otros_documentos (
 INSERT INTO usuarios (username, password) VALUES ('admin', 'admin123');
 
 -- Crear índices para mejorar el rendimiento
-CREATE INDEX idx_empleados_cedula ON empleados(cedula);
+CREATE INDEX idx_empleados_numero_identificacion ON empleados(numeroIdentificacion);
 CREATE INDEX idx_informacion_personal_empleado ON informacion_personal(empleado_id);
 CREATE INDEX idx_formacion_empleado ON formacion(empleado_id);
 CREATE INDEX idx_experiencia_empleado ON experiencia(empleado_id);

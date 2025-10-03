@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import AlertContainer from "../components/AlertContainer";
+import useAlert from "../hooks/useAlert";
 import "./Experiencia.css";
 
 const Experiencia = ({ empleado, onClose }) => {
@@ -13,9 +15,11 @@ const Experiencia = ({ empleado, onClose }) => {
     funciones: "",
     archivo: null,
   });
-  const [showValidation, setShowValidation] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
   const API_URL = "http://localhost:3000";
+  
+  // Hook para manejar alertas
+  const { alerts, showSuccess, showError, removeAlert } = useAlert();
 
   const fmt = (iso) => (iso ? new Date(iso).toLocaleDateString("es-CO") : "");
 
@@ -46,50 +50,49 @@ const Experiencia = ({ empleado, onClose }) => {
     e.preventDefault();
     
     // Activar validaciones visuales
-    setShowValidation(true);
     
     if (!empleado?.id) {
-      alert("Error: No se ha seleccionado un empleado.");
+      showError("No se ha seleccionado un empleado.");
       return;
     }
     
     // Validaciones específicas
     if (!formData.empresa || formData.empresa.trim() === "") {
-      alert("Error: La empresa es obligatoria");
+      showError("La empresa es obligatoria");
       return;
     }
 
     // Validar empresa (solo letras, espacios y algunos caracteres especiales)
     const empresaRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.\(\)&]+$/;
     if (!empresaRegex.test(formData.empresa)) {
-      alert("Error: La empresa solo puede contener letras, espacios, guiones, puntos, paréntesis y &");
+      showError("La empresa solo puede contener letras, espacios, guiones, puntos, paréntesis y &");
       return;
     }
 
     if (!formData.cargo || formData.cargo.trim() === "") {
-      alert("Error: El cargo es obligatorio");
+      showError("El cargo es obligatorio");
       return;
     }
 
     // Validar cargo (solo letras, espacios y algunos caracteres especiales)
     const cargoRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.\(\)&]+$/;
     if (!cargoRegex.test(formData.cargo)) {
-      alert("Error: El cargo solo puede contener letras, espacios, guiones, puntos, paréntesis y &");
+      showError("El cargo solo puede contener letras, espacios, guiones, puntos, paréntesis y &");
       return;
     }
 
     if (!formData.tipoVinculacion || formData.tipoVinculacion.trim() === "") {
-      alert("Error: El tipo de vinculación es obligatorio");
+      showError("El tipo de vinculación es obligatorio");
       return;
     }
 
     if (!formData.fechaInicio) {
-      alert("Error: La fecha de inicio es obligatoria");
+      showError("La fecha de inicio es obligatoria");
       return;
     }
 
     if (!formData.fechaFin) {
-      alert("Error: La fecha de fin es obligatoria");
+      showError("La fecha de fin es obligatoria");
       return;
     }
 
@@ -99,17 +102,17 @@ const Experiencia = ({ empleado, onClose }) => {
     const hoy = new Date();
 
     if (fechaInicio > hoy) {
-      alert("Error: La fecha de inicio no puede ser futura");
+      showError("La fecha de inicio no puede ser futura");
       return;
     }
 
     if (fechaFin > hoy) {
-      alert("Error: La fecha de fin no puede ser futura");
+      showError("La fecha de fin no puede ser futura");
       return;
     }
 
     if (fechaInicio > fechaFin) {
-      alert("Error: La fecha de inicio no puede ser posterior a la fecha de fin");
+      showError("La fecha de inicio no puede ser posterior a la fecha de fin");
       return;
     }
 
@@ -117,24 +120,24 @@ const Experiencia = ({ empleado, onClose }) => {
     const fechaMinima = new Date();
     fechaMinima.setFullYear(fechaMinima.getFullYear() - 100);
     if (fechaInicio < fechaMinima) {
-      alert("Error: La fecha de inicio no puede ser anterior a 1924");
+      showError("La fecha de inicio no puede ser anterior a 1924");
       return;
     }
 
     if (!formData.funciones || formData.funciones.trim() === "") {
-      alert("Error: Las funciones son obligatorias");
+      showError("Las funciones son obligatorias");
       return;
     }
 
     // Validar funciones (texto más libre, pero sin caracteres peligrosos)
     const funcionesRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\.\(\)&,;:!?]+$/;
     if (!funcionesRegex.test(formData.funciones)) {
-      alert("Error: Las funciones contienen caracteres no válidos");
+      showError("Las funciones contienen caracteres no válidos");
       return;
     }
 
     if (!formData.archivo) {
-      alert("Error: Debe adjuntar un documento PDF");
+      showError("Debe adjuntar un documento PDF");
       return;
     }
 
@@ -154,7 +157,7 @@ const Experiencia = ({ empleado, onClose }) => {
       });
     } catch (err) {
       console.error("Error al guardar experiencia:", err);
-      alert("Error al guardar experiencia: " + (err.response?.data?.error || err.message));
+      showError("Error al guardar experiencia: " + (err.response?.data?.error || err.message));
     }
   };
 
@@ -173,7 +176,6 @@ const Experiencia = ({ empleado, onClose }) => {
       funciones: exp.funciones,
       archivo: null, // No pre-cargar archivo existente
     });
-    setShowValidation(false);
   };
 
   const handleCancelEdit = () => {
@@ -187,23 +189,21 @@ const Experiencia = ({ empleado, onClose }) => {
       funciones: "",
       archivo: null,
     });
-    setShowValidation(false);
   };
 
   const handleUpdateExp = async (e) => {
     e.preventDefault();
     
-    setShowValidation(true);
     
     if (!empleado?.id) {
-      alert("Error: No se ha seleccionado un empleado.");
+      showError("No se ha seleccionado un empleado.");
       return;
     }
     
     // Validar campos obligatorios
     if (!formData.empresa || !formData.cargo || !formData.tipoVinculacion || 
         !formData.fechaInicio || !formData.fechaFin || !formData.funciones) {
-      alert("Por favor, complete todos los campos obligatorios.");
+      showError("Por favor, complete todos los campos obligatorios");
       return;
     }
 
@@ -235,7 +235,7 @@ const Experiencia = ({ empleado, onClose }) => {
       handleCancelEdit();
     } catch (err) {
       console.error("Error al actualizar experiencia:", err);
-      alert("Error al actualizar la experiencia: " + (err.response?.data?.error || err.message));
+      showError("Error al actualizar la experiencia: " + (err.response?.data?.error || err.message));
     }
   };
 
@@ -265,12 +265,6 @@ const Experiencia = ({ empleado, onClose }) => {
                 aria-describedby="empresa-error"
                 aria-invalid={!formData.empresa && formData.empresa !== ''}
               />
-              {showValidation && !editingExp && !formData.empresa && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Este campo es obligatorio</span>
-                </div>
-              )}
               <div id="empresa-error" className="error-message" role="alert" aria-live="polite"></div>
             </div>
 
@@ -286,12 +280,6 @@ const Experiencia = ({ empleado, onClose }) => {
                 aria-describedby="cargo-error"
                 aria-invalid={!formData.cargo && formData.cargo !== ''}
               />
-              {showValidation && !editingExp && !formData.cargo && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Este campo es obligatorio</span>
-                </div>
-              )}
               <div id="cargo-error" className="error-message" role="alert" aria-live="polite"></div>
             </div>
 
@@ -307,12 +295,6 @@ const Experiencia = ({ empleado, onClose }) => {
                 aria-describedby="tipoVinculacion-error"
                 aria-invalid={!formData.tipoVinculacion && formData.tipoVinculacion !== ''}
               />
-              {showValidation && !editingExp && !formData.tipoVinculacion && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Este campo es obligatorio</span>
-                </div>
-              )}
               <div id="tipoVinculacion-error" className="error-message" role="alert" aria-live="polite"></div>
             </div>
 
@@ -328,12 +310,6 @@ const Experiencia = ({ empleado, onClose }) => {
                 aria-describedby="fechaInicio-error"
                 aria-invalid={!formData.fechaInicio && formData.fechaInicio !== ''}
               />
-              {showValidation && !editingExp && !formData.fechaInicio && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Este campo es obligatorio</span>
-                </div>
-              )}
               <div id="fechaInicio-error" className="error-message" role="alert" aria-live="polite"></div>
             </div>
 
@@ -349,12 +325,6 @@ const Experiencia = ({ empleado, onClose }) => {
                 aria-describedby="fechaFin-error"
                 aria-invalid={!formData.fechaFin && formData.fechaFin !== ''}
               />
-              {showValidation && !editingExp && !formData.fechaFin && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Este campo es obligatorio</span>
-                </div>
-              )}
               <div id="fechaFin-error" className="error-message" role="alert" aria-live="polite"></div>
             </div>
 
@@ -372,12 +342,6 @@ const Experiencia = ({ empleado, onClose }) => {
                 aria-describedby="funciones-error"
                 aria-invalid={!formData.funciones && formData.funciones !== ''}
               />
-              {showValidation && !editingExp && !formData.funciones && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Este campo es obligatorio</span>
-                </div>
-              )}
               <div id="funciones-error" className="error-message" role="alert" aria-live="polite"></div>
             </div>
 
@@ -395,12 +359,6 @@ const Experiencia = ({ empleado, onClose }) => {
                 aria-invalid={!formData.archivo && formData.archivo !== null}
               />
               <div id="archivo-help" className="help-text">Solo se permiten archivos PDF</div>
-              {showValidation && !editingExp && !formData.archivo && (
-                <div className="alert-error">
-                  <span className="alert-icon">⚠️</span>
-                  <span>Debe adjuntar un documento PDF</span>
-                </div>
-              )}
               <div id="archivo-error" className="error-message" role="alert" aria-live="polite"></div>
             </div>
 
@@ -482,6 +440,9 @@ const Experiencia = ({ empleado, onClose }) => {
         </footer>
 
       </div>
+
+      {/* Contenedor de alertas */}
+      <AlertContainer alerts={alerts} onRemoveAlert={removeAlert} />
     </div>
   );
 };

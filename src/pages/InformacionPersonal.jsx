@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import AlertContainer from "../components/AlertContainer";
+import useAlert from "../hooks/useAlert";
 import "./InformacionPersonal.css";
 
 const InformacionPersonal = ({ empleado, onClose }) => {
   const [formData, setFormData] = useState({
-    tipoDocumento: "",
+    tipoDocumento: "Seleccionar tipo de documento...",
     numeroIdentificacion: "",
     fechaExpedicion: "",
     documentoPdf: null,
@@ -13,8 +15,8 @@ const InformacionPersonal = ({ empleado, onClose }) => {
     apellidos: "",
     genero: "Seleccionar género...",
     fechaNacimiento: "",
-    departamentoNacimiento: "",
-    ciudadNacimiento: "",
+    departamentoNacimiento: "Seleccionar departamento...",
+    ciudadNacimiento: "Seleccionar ciudad...",
     email: "",
     direccion: "",
     telefono: "",
@@ -29,6 +31,118 @@ const InformacionPersonal = ({ empleado, onClose }) => {
   const [showReplaceImage, setShowReplaceImage] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [hasInitialData, setHasInitialData] = useState(false);
+  
+  // Hook para manejar alertas
+  const { alerts, showSuccess, showError, removeAlert } = useAlert();
+
+  // Lista de departamentos de Colombia
+  const departamentos = [
+    "Seleccionar departamento...",
+    "Huila",
+    "Pitalito",
+    "Garzón",
+    "La Plata",
+    "Campoalegre",
+    "Gigante",
+    "Aipe",
+    "Palermo",
+    "San Agustín",
+    "Santa María",
+    "Tierra del Socorro",
+    "Uramita",
+    "Villavicencio",
+    "Yaguará",
+    "Yaguaral",
+    "Yopal",
+    "Zapata",
+    "Zona Bananera",
+    "Caquetá",
+    "San Vicente del Caguán",
+    "Puerto Rico",
+    "El Doncello",
+    "Belén de Los Andaquies",
+    "Morelia",
+    "Cartagena del Chairá",
+    "El Paujil",
+    "El Piñon",
+    "El Pital",
+    "El Retorno",
+    "El Rosario",
+    "El Tabaco",
+    "Guachené",
+    "Tumaco",
+    "San Andrés de Tierra Amarilla",
+    "San Carlos",
+    "San José de Guaviare",
+    "San Juan de Pasto",
+    "Amazonas",
+    "Antioquia",
+    "Arauca",
+    "Atlántico",
+    "Bolívar",
+    "Boyacá",
+    "Caldas",
+    "Casanare",
+    "Cauca",
+    "Cesar",
+    "Chocó",
+    "Córdoba",
+    "Cundinamarca",
+    "Guainía",
+    "Guaviare",
+    "La Guajira",
+    "Magdalena",
+    "Meta",
+    "Nariño",
+    "Norte de Santander",
+    "Putumayo",
+    "Quindío",
+    "Risaralda",
+    "San Andrés y Providencia",
+    "Santander",
+    "Sucre",
+    "Tolima",
+    "Valle del Cauca",
+    "Vaupés",
+    "Vichada"
+  ];
+
+  // Lista de ciudades principales de Colombia
+  const ciudades = [
+    "Seleccionar ciudad...",
+    "Neiva",
+    "Bogotá",
+    "Florencia",
+    "Medellín",
+    "Cali",
+    "Barranquilla",
+    "Cartagena",
+    "Cúcuta",
+    "Bucaramanga",
+    "Pereira",
+    "Santa Marta",
+    "Ibagué",
+    "Pasto",
+    "Manizales",
+    "Villavicencio",
+    "Armenia",
+    "Valledupar",
+    "Montería",
+    "Sincelejo",
+    "Popayán",
+    "Tunja",
+    "Yopal",
+    "Quibdó",
+    "Riohacha",
+    "San José del Guaviare",
+    "Mocoa",
+    "Arauca",
+    "Leticia",
+    "Inírida",
+    "Mitú",
+    "Puerto Carreño",
+    "San Andrés"
+  ];
 
   // Cargar datos existentes del empleado
   useEffect(() => {
@@ -53,7 +167,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
         };
         
         setFormData({
-          tipoDocumento: existingData.tipo_documento || "",
+          tipoDocumento: existingData.tipo_documento || "Seleccionar tipo de documento...",
           numeroIdentificacion: existingData.numero_identificacion || "",
           fechaExpedicion: formatDateForInput(existingData.fecha_expedicion),
           documentoPdf: null, // No cargamos el archivo existente
@@ -62,8 +176,8 @@ const InformacionPersonal = ({ empleado, onClose }) => {
           apellidos: existingData.apellidos || "",
           genero: existingData.genero || "Seleccionar género...",
           fechaNacimiento: formatDateForInput(existingData.fecha_nacimiento),
-          departamentoNacimiento: existingData.departamento_nacimiento || "",
-          ciudadNacimiento: existingData.ciudad_nacimiento || "",
+          departamentoNacimiento: existingData.departamento_nacimiento || "Seleccionar departamento...",
+          ciudadNacimiento: existingData.ciudad_nacimiento || "Seleccionar ciudad...",
           email: existingData.email || "",
           direccion: existingData.direccion || "",
           telefono: existingData.telefono || "",
@@ -124,11 +238,38 @@ const InformacionPersonal = ({ empleado, onClose }) => {
         setImagePreview(null);
       }
     } else if (type !== "file") {
-      // Para todos los otros campos que no sean archivos
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      // Capitalizar automáticamente las iniciales para campos de nombres
+      if (name === 'nombres' || name === 'apellidos') {
+        const palabras = value.split(' ');
+        const palabrasCapitalizadas = palabras.map(palabra => {
+          if (palabra.length > 0) {
+            return palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase();
+          }
+          return palabra;
+        });
+        setFormData((prev) => ({
+          ...prev,
+          [name]: palabrasCapitalizadas.join(' '),
+        }));
+      } else {
+        // Para todos los otros campos que no sean archivos
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    const { name } = e.target;
+    
+    // Para campos de nombres y apellidos, solo permitir letras y espacios
+    if (name === 'nombres' || name === 'apellidos') {
+      const allowedChars = /[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/;
+      if (!allowedChars.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+        e.preventDefault();
+      }
     }
   };
 
@@ -140,63 +281,63 @@ const InformacionPersonal = ({ empleado, onClose }) => {
     e.preventDefault();
 
     if (!empleado?.id) {
-      alert("Error: No se ha seleccionado un empleado");
+      showError("No se ha seleccionado un empleado");
       return;
     }
 
     // Validaciones específicas de campos
-    if (!formData.tipoDocumento || formData.tipoDocumento.trim() === "") {
-      alert("Error: El tipo de documento es obligatorio");
+    if (!formData.tipoDocumento || formData.tipoDocumento === "Seleccionar tipo de documento...") {
+      showError("Debe seleccionar un tipo de documento");
       return;
     }
 
     if (!formData.numeroIdentificacion || formData.numeroIdentificacion.trim() === "") {
-      alert("Error: El número de identificación es obligatorio");
+      showError("El número de identificación es obligatorio");
       return;
     }
 
     // Validar formato de cédula (solo números, entre 6 y 12 dígitos)
     const cedulaRegex = /^\d{6,12}$/;
     if (!cedulaRegex.test(formData.numeroIdentificacion)) {
-      alert("Error: El número de identificación debe contener solo números (6-12 dígitos)");
+      showError("El número de identificación debe contener solo números (6-12 dígitos)");
       return;
     }
 
     if (!formData.fechaExpedicion) {
-      alert("Error: La fecha de expedición es obligatoria");
+      showError("La fecha de expedición es obligatoria");
       return;
     }
 
     if (!formData.nombres || formData.nombres.trim() === "") {
-      alert("Error: Los nombres son obligatorios");
+      showError("Los nombres son obligatorios");
       return;
     }
 
     // Validar nombres (solo letras y espacios)
     const nombresRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
     if (!nombresRegex.test(formData.nombres)) {
-      alert("Error: Los nombres solo pueden contener letras y espacios");
+      showError("Los nombres solo pueden contener letras y espacios");
       return;
     }
 
     if (!formData.apellidos || formData.apellidos.trim() === "") {
-      alert("Error: Los apellidos son obligatorios");
+      showError("Los apellidos son obligatorios");
       return;
     }
 
     // Validar apellidos (solo letras y espacios)
     if (!nombresRegex.test(formData.apellidos)) {
-      alert("Error: Los apellidos solo pueden contener letras y espacios");
+      showError("Los apellidos solo pueden contener letras y espacios");
       return;
     }
 
     if (!formData.genero || formData.genero === "Seleccionar género...") {
-      alert("Error: Debe seleccionar un género");
+      showError("Debe seleccionar un género");
       return;
     }
 
     if (!formData.fechaNacimiento) {
-      alert("Error: La fecha de nacimiento es obligatoria");
+      showError("La fecha de nacimiento es obligatoria");
       return;
     }
 
@@ -204,17 +345,17 @@ const InformacionPersonal = ({ empleado, onClose }) => {
     const fechaNacimiento = new Date(formData.fechaNacimiento);
     const hoy = new Date();
     if (fechaNacimiento > hoy) {
-      alert("Error: La fecha de nacimiento no puede ser futura");
+      showError("La fecha de nacimiento no puede ser futura");
       return;
     }
 
-    if (!formData.departamentoNacimiento || formData.departamentoNacimiento.trim() === "") {
-      alert("Error: El departamento de nacimiento es obligatorio");
+    if (!formData.departamentoNacimiento || formData.departamentoNacimiento === "Seleccionar departamento...") {
+      showError("Debe seleccionar un departamento de nacimiento");
       return;
     }
 
-    if (!formData.ciudadNacimiento || formData.ciudadNacimiento.trim() === "") {
-      alert("Error: La ciudad de nacimiento es obligatoria");
+    if (!formData.ciudadNacimiento || formData.ciudadNacimiento === "Seleccionar ciudad...") {
+      showError("Debe seleccionar una ciudad de nacimiento");
       return;
     }
 
@@ -222,7 +363,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
     if (formData.email && formData.email.trim() !== "") {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(formData.email)) {
-        alert("Error: El formato del email no es válido. Debe contener @ y un dominio válido (.com, .co, .org, etc.)");
+        showError("El formato del email no es válido. Debe contener @ y un dominio válido (.com, .co, .org, etc.)");
         return;
       }
     }
@@ -231,20 +372,20 @@ const InformacionPersonal = ({ empleado, onClose }) => {
     if (formData.telefono && formData.telefono.trim() !== "") {
       const telefonoRegex = /^\d{7,15}$/;
       if (!telefonoRegex.test(formData.telefono)) {
-        alert("Error: El teléfono debe contener solo números (7-15 dígitos)");
+        showError("El teléfono debe contener solo números (7-15 dígitos)");
         return;
       }
     }
 
     // Validar RH si se proporciona
     if (formData.rh && formData.rh === "Seleccionar RH...") {
-      alert("Error: Si proporciona RH, debe seleccionar una opción válida");
+      showError("Si proporciona RH, debe seleccionar una opción válida");
       return;
     }
 
     // Validar que se tenga al menos un PDF (existente o nuevo)
     if (!existingPdf && !formData.documentoPdf) {
-      alert("Error: Debe adjuntar un documento PDF");
+      showError("Debe adjuntar un documento PDF");
       return;
     }
 
@@ -274,12 +415,12 @@ const InformacionPersonal = ({ empleado, onClose }) => {
       await axios.post("http://localhost:3000/api/informacion-personal", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Datos guardados con éxito ✅");
+      showSuccess("Datos guardados con éxito");
       onClose();
     } catch (error) {
       console.error("Error al guardar la información:", error);
       const msg = error?.response?.data?.message || "Ocurrió un error al enviar los datos";
-      alert(`${msg} ❌`);
+      showError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -372,13 +513,17 @@ const InformacionPersonal = ({ empleado, onClose }) => {
         <form className="info-form" onSubmit={handleSubmit} encType="multipart/form-data">
           <label>
             Tipo de documento:
-            <input
-              type="text"
+            <select
               name="tipoDocumento"
               value={formData.tipoDocumento}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="Seleccionar tipo de documento..." disabled>Seleccionar tipo de documento...</option>
+              <option value="Cédula de Ciudadanía">Cédula de Ciudadanía</option>
+              <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+              <option value="Pasaporte">Pasaporte</option>
+            </select>
           </label>
 
           <label>
@@ -390,7 +535,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               onChange={handleChange}
               pattern="[0-9]{6,12}"
               title="Solo números, entre 6 y 12 dígitos"
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
                   e.preventDefault();
                 }
@@ -417,6 +562,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="nombres"
               value={formData.nombres}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
               title="Solo letras y espacios"
               required
@@ -430,6 +576,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="apellidos"
               value={formData.apellidos}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
               title="Solo letras y espacios"
               required
@@ -463,25 +610,35 @@ const InformacionPersonal = ({ empleado, onClose }) => {
           </label>
 
           <label>
-            Departamento de nacimiento:
-            <input
-              type="text"
+            Departamento de nacimiento *
+            <select
               name="departamentoNacimiento"
               value={formData.departamentoNacimiento}
               onChange={handleChange}
               required
-            />
+            >
+              {departamentos.map((departamento, index) => (
+                <option key={index} value={departamento} disabled={index === 0}>
+                  {departamento}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label>
-            Ciudad de nacimiento:
-            <input
-              type="text"
+            Ciudad de nacimiento *
+            <select
               name="ciudadNacimiento"
               value={formData.ciudadNacimiento}
               onChange={handleChange}
               required
-            />
+            >
+              {ciudades.map((ciudad, index) => (
+                <option key={index} value={ciudad} disabled={index === 0}>
+                  {ciudad}
+                </option>
+              ))}
+            </select>
           </label>
 
           {/* Nuevos campos */}
@@ -518,7 +675,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               placeholder="3001234567"
               pattern="[0-9]{7,15}"
               title="Solo números, entre 7 y 15 dígitos"
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
                   e.preventDefault();
                 }
@@ -554,7 +711,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
                   <span className="pdf-name">📄 {existingPdf}</span>
                   <div className="pdf-actions">
                     <a
-                      href={`http://localhost:3000/uploads/${existingPdf}`} 
+                      href={`http://localhost:3000/uploads/${existingPdf}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="view-pdf-btn"
@@ -585,8 +742,8 @@ const InformacionPersonal = ({ empleado, onClose }) => {
                 />
                 {showReplacePdf && (
                   <div className="replace-actions">
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={handleCancelReplace}
                       className="cancel-replace-btn"
                     >
@@ -608,7 +765,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
             {hasInitialData && existingImage && !showReplaceImage && (
               <div className="existing-image-section">
                 <div className="image-preview-container">
-                  <img 
+                  <img
                     src={`http://localhost:3000/uploads/${existingImage}`}
                     alt="Imagen personal existente"
                     className="existing-image"
@@ -631,7 +788,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               <div className="image-upload-section">
                 <div className="image-preview-container">
                   {imagePreview ? (
-                    <img 
+                    <img
                       src={imagePreview}
                       alt="Preview de imagen"
                       className="image-preview"
@@ -652,8 +809,8 @@ const InformacionPersonal = ({ empleado, onClose }) => {
                 />
                 {showReplaceImage && (
                   <div className="replace-actions">
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={handleCancelReplaceImage}
                       className="cancel-replace-btn"
                     >
@@ -676,6 +833,9 @@ const InformacionPersonal = ({ empleado, onClose }) => {
           </button>
         </div>
       </div>
+
+      {/* Contenedor de alertas */}
+      <AlertContainer alerts={alerts} onRemoveAlert={removeAlert} />
     </div>
   );
 };

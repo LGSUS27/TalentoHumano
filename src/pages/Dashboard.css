@@ -284,10 +284,7 @@ html, body {
   flex-direction: column;
 }
 
-.employee-table-container:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 25px 50px rgba(0, 105, 92, 0.15), 0 12px 24px rgba(0, 0, 0, 0.08);
-}
+/* Removido el efecto hover para mantener el contenedor completamente fijo */
 
 /* Anchos automáticos basados en contenido - no necesitamos variables CSS */
 
@@ -639,7 +636,10 @@ html, body {
   }
   
   .employee-table-container {
-    padding: 1.5rem;
+    top: 160px; /* 80px header + 80px actions */
+    left: 2rem;
+    right: 2rem;
+    max-height: calc(100vh - 180px);
   }
 }
 
@@ -655,6 +655,13 @@ html, body {
   
   .header-logo {
     height: 55px;
+  }
+  
+  .employee-table-container {
+    top: 160px; /* 80px header + 80px actions */
+    left: 1.5rem;
+    right: 1.5rem;
+    max-height: calc(100vh - 180px);
   }
 }
 
@@ -681,6 +688,13 @@ html, body {
   .search-container {
     max-width: 100%;
     margin-right: 0;
+  }
+  
+  .employee-table-container {
+    top: 160px; /* 80px header + 80px actions */
+    left: 1.25rem;
+    right: 1.25rem;
+    max-height: calc(100vh - 180px);
   }
 }
 
@@ -716,7 +730,10 @@ html, body {
   }
   
   .employee-table-container {
-    padding: 0.75rem;
+    top: 160px; /* 80px header + 80px actions */
+    left: 1rem;
+    right: 1rem;
+    max-height: calc(100vh - 180px);
   }
 }
 
@@ -775,10 +792,7 @@ html, body {
     text-align: center;
   }
   
-  .employee-table-container {
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-  }
+  /* Removido padding y margin que interferían con el posicionamiento fijo */
 }
 
 /* Very small screens (480px - 575px) */
@@ -829,10 +843,7 @@ html, body {
     font-size: 0.8rem;
   }
   
-  .employee-table-container {
-    padding: 0.25rem;
-    border-radius: 6px;
-  }
+  /* Removido padding que interfería con el posicionamiento fijo */
 }
 
 /* Extra small screens (320px - 479px) */
@@ -880,10 +891,7 @@ html, body {
     font-size: 0.75rem;
   }
   
-  .employee-table-container {
-    padding: 0.15rem;
-    border-radius: 4px;
-  }
+  /* Removido padding que interfería con el posicionamiento fijo */
 }
 
 /* Media queries para tabla responsive */
@@ -937,11 +945,7 @@ html, body {
   .tabla-empleados thead th:nth-child(9),
   .tabla-empleados tbody td:nth-child(9){ min-width: 120px; } /* Acciones */
   
-  /* Scroll horizontal en móviles para tabla */
-  .employee-table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+  /* Scroll horizontal en móviles para tabla - se maneja en el wrapper interno */
   .employee-table {
     min-width: 800px;
   }

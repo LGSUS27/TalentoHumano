@@ -38,7 +38,7 @@ router.post('/', verificarToken, async (req, res) => {
 try {
     const {
     nombre,
-    cedula,
+    numeroIdentificacion,
     contrato,
     fecha_inicio,
     fecha_fin,
@@ -47,23 +47,90 @@ try {
     cargo
     } = req.body;
 
-    // Validar campos requeridos
-    if (!nombre || !cedula || !contrato || !fecha_inicio || !fecha_fin || !sueldo || !tipo_contrato || !cargo) {
-    return res.status(400).json({
-        success: false,
-        message: 'Todos los campos son obligatorios'
-    });
+    // Validar campos requeridos con mensajes específicos
+    if (!nombre || nombre.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: 'El nombre es obligatorio'
+        });
+    }
+
+    if (!numeroIdentificacion || numeroIdentificacion.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: 'El número de identificación es obligatorio'
+        });
+    }
+
+    if (!contrato || contrato.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: 'El número de contrato es obligatorio'
+        });
+    }
+
+    if (!fecha_inicio) {
+        return res.status(400).json({
+            success: false,
+            message: 'La fecha de inicio es obligatoria'
+        });
+    }
+
+    if (!fecha_fin) {
+        return res.status(400).json({
+            success: false,
+            message: 'La fecha de fin es obligatoria'
+        });
+    }
+
+    if (!sueldo || sueldo <= 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'El sueldo debe ser mayor a 0'
+        });
+    }
+
+    if (!tipo_contrato || tipo_contrato.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: 'Debe seleccionar un tipo de contrato'
+        });
+    }
+
+    if (!cargo || cargo.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: 'El cargo es obligatorio'
+        });
+    }
+
+    // Validar formato del número de identificación
+    const cedulaRegex = /^[0-9]{6,12}$/;
+    if (!cedulaRegex.test(numeroIdentificacion)) {
+        return res.status(400).json({
+            success: false,
+            message: 'El número de identificación debe contener solo números (6-12 dígitos)'
+        });
+    }
+
+    // Validar formato del nombre
+    const nombresRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!nombresRegex.test(nombre)) {
+        return res.status(400).json({
+            success: false,
+            message: 'El nombre solo puede contener letras y espacios'
+        });
     }
 
     // Validar que el cargo comience con mayúscula
     if (cargo && cargo.trim() !== "") {
-    const primeraLetra = cargo.trim().charAt(0);
-    if (primeraLetra !== primeraLetra.toUpperCase() || !/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(primeraLetra)) {
-        return res.status(400).json({
-        success: false,
-        message: 'El cargo debe comenzar con una letra mayúscula'
-        });
-    }
+        const primeraLetra = cargo.trim().charAt(0);
+        if (primeraLetra !== primeraLetra.toUpperCase() || !/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(primeraLetra)) {
+            return res.status(400).json({
+                success: false,
+                message: 'El cargo debe comenzar con una letra mayúscula'
+            });
+        }
     }
 
     // Validar fechas
@@ -73,24 +140,31 @@ try {
     // La fecha de inicio no puede ser anterior a 2002
     const fechaMinimaInicio = new Date('2002-01-01');
     if (fechaInicio < fechaMinimaInicio) {
-    return res.status(400).json({
-        success: false,
-        message: 'La fecha de inicio no puede ser anterior a 2002'
-    });
+        return res.status(400).json({
+            success: false,
+            message: 'La fecha de inicio no puede ser anterior a 2002'
+        });
     }
 
     if (fechaInicio > fechaFin) {
-    return res.status(400).json({
-        success: false,
-        message: 'La fecha de inicio no puede ser posterior a la fecha de fin'
-    });
+        return res.status(400).json({
+            success: false,
+            message: 'La fecha de inicio no puede ser posterior a la fecha de fin'
+        });
     }
 
     const { rows } = await pool.query(
-    `INSERT INTO empleados (nombre, cedula, contrato, fecha_inicio, fecha_fin, sueldo, tipo_contrato, cargo)
+    `INSERT INTO empleados (nombre, numeroIdentificacion, contrato, fecha_inicio, fecha_fin, sueldo, tipo_contrato, cargo)
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *`,
-    [nombre, cedula, contrato, fecha_inicio, fecha_fin, sueldo, tipo_contrato, cargo]
+    [nombre, numeroIdentificacion, contrato, fecha_inicio, fecha_fin, sueldo, tipo_contrato, cargo]
+    );
+
+    // Crear registro básico en información personal con el número de identificación
+    await pool.query(
+    `INSERT INTO informacion_personal (empleado_id, numero_identificacion)
+    VALUES ($1, $2)`,
+    [rows[0].id, numeroIdentificacion]
     );
 
     res.status(201).json({
@@ -101,12 +175,12 @@ try {
 } catch (error) {
     console.error('Error al crear empleado:', error);
     
-    // Error de duplicado de cédula
-    if (error.code === '23505' && error.constraint === 'empleados_cedula_key') {
-    return res.status(400).json({
-        success: false,
-        message: 'Ya existe un empleado con esta cédula'
-    });
+    // Error de duplicado de número de identificación
+    if (error.code === '23505' && error.constraint === 'empleados_numeroIdentificacion_key') {
+        return res.status(400).json({
+            success: false,
+            message: 'Ya existe un empleado con este número de identificación'
+        });
     }
     
     res.status(500).json({ success: false, message: 'Error al crear empleado' });
@@ -142,7 +216,7 @@ try {
     const { id } = req.params;
     const {
     nombre,
-    cedula,
+    numeroIdentificacion,
     contrato,
     fecha_inicio,
     fecha_fin,
@@ -151,23 +225,90 @@ try {
     cargo
     } = req.body;
 
-    // Validar campos requeridos
-    if (!nombre || !cedula || !contrato || !fecha_inicio || !fecha_fin || !sueldo || !tipo_contrato || !cargo) {
-    return res.status(400).json({
-        success: false,
-        message: 'Todos los campos son obligatorios'
-    });
+    // Validar campos requeridos con mensajes específicos
+    if (!nombre || nombre.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: 'El nombre es obligatorio'
+        });
+    }
+
+    if (!numeroIdentificacion || numeroIdentificacion.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: 'El número de identificación es obligatorio'
+        });
+    }
+
+    if (!contrato || contrato.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: 'El número de contrato es obligatorio'
+        });
+    }
+
+    if (!fecha_inicio) {
+        return res.status(400).json({
+            success: false,
+            message: 'La fecha de inicio es obligatoria'
+        });
+    }
+
+    if (!fecha_fin) {
+        return res.status(400).json({
+            success: false,
+            message: 'La fecha de fin es obligatoria'
+        });
+    }
+
+    if (!sueldo || sueldo <= 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'El sueldo debe ser mayor a 0'
+        });
+    }
+
+    if (!tipo_contrato || tipo_contrato.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: 'Debe seleccionar un tipo de contrato'
+        });
+    }
+
+    if (!cargo || cargo.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: 'El cargo es obligatorio'
+        });
+    }
+
+    // Validar formato del número de identificación
+    const cedulaRegex = /^[0-9]{6,12}$/;
+    if (!cedulaRegex.test(numeroIdentificacion)) {
+        return res.status(400).json({
+            success: false,
+            message: 'El número de identificación debe contener solo números (6-12 dígitos)'
+        });
+    }
+
+    // Validar formato del nombre
+    const nombresRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!nombresRegex.test(nombre)) {
+        return res.status(400).json({
+            success: false,
+            message: 'El nombre solo puede contener letras y espacios'
+        });
     }
 
     // Validar que el cargo comience con mayúscula
     if (cargo && cargo.trim() !== "") {
-    const primeraLetra = cargo.trim().charAt(0);
-    if (primeraLetra !== primeraLetra.toUpperCase() || !/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(primeraLetra)) {
-        return res.status(400).json({
-        success: false,
-        message: 'El cargo debe comenzar con una letra mayúscula'
-        });
-    }
+        const primeraLetra = cargo.trim().charAt(0);
+        if (primeraLetra !== primeraLetra.toUpperCase() || !/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(primeraLetra)) {
+            return res.status(400).json({
+                success: false,
+                message: 'El cargo debe comenzar con una letra mayúscula'
+            });
+        }
     }
 
     // Validar fechas
@@ -177,26 +318,26 @@ try {
     // La fecha de inicio no puede ser anterior a 2002
     const fechaMinimaInicio = new Date('2002-01-01');
     if (fechaInicio < fechaMinimaInicio) {
-    return res.status(400).json({
-        success: false,
-        message: 'La fecha de inicio no puede ser anterior a 2002'
-    });
+        return res.status(400).json({
+            success: false,
+            message: 'La fecha de inicio no puede ser anterior a 2002'
+        });
     }
 
     if (fechaInicio > fechaFin) {
-    return res.status(400).json({
-        success: false,
-        message: 'La fecha de inicio no puede ser posterior a la fecha de fin'
-    });
+        return res.status(400).json({
+            success: false,
+            message: 'La fecha de inicio no puede ser posterior a la fecha de fin'
+        });
     }
 
     const { rows } = await pool.query(
     `UPDATE empleados
-    SET nombre = $1, cedula = $2, contrato = $3, fecha_inicio = $4,
+    SET nombre = $1, numeroIdentificacion = $2, contrato = $3, fecha_inicio = $4,
         fecha_fin = $5, sueldo = $6, tipo_contrato = $7, cargo = $8
     WHERE id = $9
        RETURNING *`,
-    [nombre, cedula, contrato, fecha_inicio, fecha_fin, sueldo, tipo_contrato, cargo, id]
+    [nombre, numeroIdentificacion, contrato, fecha_inicio, fecha_fin, sueldo, tipo_contrato, cargo, id]
     );
 
     if (rows.length === 0) {
