@@ -26,6 +26,7 @@ try {
     const { rows } = await pool.query(
       'SELECT * FROM empleados ORDER BY created_at DESC'
     );
+    console.log('Empleados desde la base de datos:', rows);
     res.json({ empleados: rows });
 } catch (error) {
     console.error('Error al obtener empleados:', error);

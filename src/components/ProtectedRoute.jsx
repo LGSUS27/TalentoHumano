@@ -1,7 +1,8 @@
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
+  // Buscar token en localStorage (sesión persistente) o sessionStorage (sesión temporal)
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   if (!token) {
     return <Navigate to="/" replace />;

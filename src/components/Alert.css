@@ -1,31 +1,31 @@
 /* =======================
-   Componente de Alertas
+  Componente de Alertas
 ======================= */
 
 .alert {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
   min-width: 300px;
   max-width: 500px;
   padding: 0;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  z-index: 10000;
+  z-index: 10001;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  transform: translateX(100%);
   opacity: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .alert-show {
-  transform: translateX(0);
+  transform: translate(-50%, -50%) scale(1);
   opacity: 1;
 }
 
 .alert-hide {
-  transform: translateX(100%);
+  transform: translate(-50%, -50%) scale(0.8);
   opacity: 0;
 }
 
@@ -38,6 +38,15 @@
 
 .alert-icon {
   font-size: 1.25rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-icon-svg {
+  width: 1.25rem;
+  height: 1.25rem;
   flex-shrink: 0;
 }
 
@@ -71,7 +80,7 @@
 }
 
 /* =======================
-   Tipos de alertas
+  Tipos de alertas
 ======================= */
 
 .alert-success {
@@ -111,16 +120,17 @@
 }
 
 /* =======================
-   Responsive
+  Responsive
 ======================= */
 
 @media (max-width: 768px) {
   .alert {
-    top: 10px;
-    right: 10px;
-    left: 10px;
-    min-width: auto;
-    max-width: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    min-width: 280px;
+    max-width: 90vw;
+    margin: 0 20px;
   }
   
   .alert-content {
@@ -134,9 +144,12 @@
 
 @media (max-width: 480px) {
   .alert {
-    top: 5px;
-    right: 5px;
-    left: 5px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    min-width: 260px;
+    max-width: 95vw;
+    margin: 0 10px;
   }
   
   .alert-content {
@@ -146,6 +159,11 @@
   
   .alert-icon {
     font-size: 1.1rem;
+  }
+  
+  .alert-icon-svg {
+    width: 1.1rem;
+    height: 1.1rem;
   }
   
   .alert-message {

@@ -43,6 +43,7 @@ const Dashboard = () => {
     return isNaN(d) ? "-" : d.toLocaleDateString();
   };
 
+
   const formatMoney = (value) => {
     if (value === null || value === undefined || value === "") return "-";
     const n = Number(value);
@@ -55,13 +56,15 @@ const Dashboard = () => {
   };
 
   const loadEmployees = useCallback(async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     try {
       const response = await fetch("http://localhost:3000/empleados", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
       if (response.ok) {
+        console.log("Datos de empleados recibidos:", data.empleados);
+        console.log("Primer empleado:", data.empleados[0]);
         setEmployees(data.empleados);
       } else {
         navigate("/");
@@ -173,7 +176,7 @@ const Dashboard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     console.log("Token:", token);
     console.log("Token length:", token ? token.length : 0);
     console.log("Form data:", formData);
@@ -183,83 +186,7 @@ const Dashboard = () => {
       return;
     }
 
-    // TEMPORAL: Comentar validaciones del frontend para probar mensajes del backend
-    /*
-    // Validaciones específicas
-    if (!formData.nombre || formData.nombre.trim() === "") {
-      showError("El nombre es obligatorio");
-      return;
-    }
-
-    // Validar nombres (solo letras y espacios)
-    const nombresRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-    if (!nombresRegex.test(formData.nombre)) {
-      showError("El nombre solo puede contener letras y espacios");
-      return;
-    }
-
-    if (!formData.numeroIdentificacion || formData.numeroIdentificacion.trim() === "") {
-      showError("El número de identificación es obligatorio");
-      return;
-    }
-
-    // Validar formato de número de identificación (solo números, entre 6 y 12 dígitos)
-    const cedulaRegex = /^\d{6,12}$/;
-    if (!cedulaRegex.test(formData.numeroIdentificacion)) {
-      showError("El número de identificación debe contener solo números (6-12 dígitos)");
-      return;
-    }
-
-    if (!formData.contrato || formData.contrato.trim() === "") {
-      showError("El número de contrato es obligatorio");
-      return;
-    }
-    */
-
-    /*
-    if (!formData.fecha_inicio) {
-      showError("La fecha de inicio es obligatoria");
-      return;
-    }
-
-    if (!formData.fecha_fin) {
-      showError("La fecha de fin es obligatoria");
-      return;
-    }
-
-    // Validar fechas
-    const fechaInicio = new Date(formData.fecha_inicio);
-    const fechaFin = new Date(formData.fecha_fin);
-
-    // La fecha de inicio no puede ser anterior a 2002
-    const fechaMinimaInicio = new Date('2002-01-01');
-    if (fechaInicio < fechaMinimaInicio) {
-      showError("La fecha de inicio no puede ser anterior a 2002");
-      return;
-    }
-
-    // La fecha de fin solo debe ser posterior a la fecha de inicio
-    if (fechaInicio > fechaFin) {
-      showError("La fecha de inicio no puede ser posterior a la fecha de fin");
-      return;
-    }
-
-    if (!formData.sueldo || formData.sueldo <= 0) {
-      showError("El sueldo debe ser mayor a 0");
-      return;
-    }
-
-    if (!formData.tipo_contrato || formData.tipo_contrato === "") {
-      showError("Debe seleccionar un tipo de contrato");
-      return;
-    }
-
-    if (!formData.cargo || formData.cargo.trim() === "") {
-      showError("El cargo es obligatorio");
-      return;
-    }
-    */
-
+    
     try {
       const response = await fetch("http://localhost:3000/empleados", {
         method: "POST",
@@ -389,7 +316,7 @@ const Dashboard = () => {
             <thead>
               <tr>
                 <th>Nombre</th>
-                <th>N° Id</th>
+                <th>Cédula</th>
                 <th>N° Contrato</th>
                 <th>Fecha inicio</th>
                 <th>Fecha fin</th>
@@ -407,7 +334,7 @@ const Dashboard = () => {
                       {emp.nombre}
                     </span>
                   </td>
-                  <td>{emp.numeroIdentificacion}</td>
+                  <td>{emp.numeroidentificacion || "-"}</td>
                   <td>{emp.contrato}</td>
                   <td>{formatDate(emp.fecha_inicio)}</td>
                   <td>{formatDate(emp.fecha_fin)}</td>

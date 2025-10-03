@@ -5,21 +5,24 @@
   background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  align-items: flex-start;    /* Cambiar de center a flex-start */
+  z-index: 1001;
+  padding: 20px;              /* padding para que no toque los bordes */
+  overflow-y: auto;           /* permitir scroll si es necesario */
 }
 
 /* ---------- Contenedor del modal ---------- */
 .modal-content {
   background: #fff;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 10px;
   width: 100%;
-  max-width: 700px;
-  max-height: 86vh;           /* para que no crezca infinito */
+  max-width: 800px;
+  max-height: 90vh;           /* para que no crezca infinito */
   overflow-y: auto;           /* scroll interno si hace falta */
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
+  margin: 20px;               /* margen para que no toque los bordes */
 }
 
 .modal-content h3 {
@@ -33,7 +36,7 @@
 .info-form {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem 1.25rem;
+  gap: 0.75rem 1rem;          /* Reducir gap para hacer más compacto */
   box-sizing: border-box;
 }
 
@@ -51,8 +54,8 @@
 /* ---------- Campos ---------- */
 .info-form input,
 .info-form select {
-  padding: 0.55rem 0.7rem;
-  font-size: 0.95rem;
+  padding: 0.45rem 0.6rem;     /* Reducir padding */
+  font-size: 0.9rem;           /* Reducir tamaño de fuente */
   border: 1px solid #ccc;
   border-radius: 6px;
   width: 100%;
@@ -123,10 +126,10 @@
 
 /* ---------- Estilos para manejo de PDF ---------- */
 .pdf-section {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  margin-top: 1rem;            /* Reducir márgenes */
+  margin-bottom: 1rem;
+  padding-top: 0.75rem;        /* Reducir padding */
+  padding-bottom: 0.75rem;
   border-top: 1px solid #e9ecef;
   border-bottom: 1px solid #e9ecef;
 }
@@ -250,10 +253,10 @@
 
 /* ---------- Estilos para manejo de Imagen ---------- */
 .image-section {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  margin-top: 1rem;            /* Reducir márgenes */
+  margin-bottom: 1rem;
+  padding-top: 0.75rem;        /* Reducir padding */
+  padding-bottom: 0.75rem;
   border-top: 1px solid #e9ecef;
   border-bottom: 1px solid #e9ecef;
 }
@@ -271,8 +274,8 @@
 }
 
 .image-preview-container {
-  width: 400px;
-  height: 500px;
+  width: 300px;               /* Reducir ancho */
+  height: 350px;              /* Reducir altura */
   border: 2px solid #e9ecef;
   border-radius: 8px;
   display: flex;
@@ -374,8 +377,22 @@
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 600px) {
-  .info-form { grid-template-columns: 1fr; }
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 10px;            /* Reducir padding en móviles */
+  }
+  
+  .modal-content {
+    margin: 10px;             /* Reducir margen en móviles */
+    padding: 1rem;            /* Reducir padding en móviles */
+    max-height: 95vh;         /* Más altura en móviles */
+  }
+  
+  .info-form { 
+    grid-template-columns: 1fr; 
+    gap: 0.5rem;             /* Reducir gap en móviles */
+  }
+  
   .form-buttons {
     flex-direction: column;
     align-items: stretch;
@@ -393,7 +410,22 @@
   
   .image-preview-container {
     width: 100%;
-    max-width: 400px;
-    height: 400px;
+    max-width: 300px;
+    height: 300px;            /* Reducir altura en móviles */
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 5px;             /* Mínimo padding en pantallas muy pequeñas */
+  }
+  
+  .modal-content {
+    margin: 5px;              /* Mínimo margen en pantallas muy pequeñas */
+    padding: 0.75rem;         /* Mínimo padding en pantallas muy pequeñas */
+  }
+  
+  .image-preview-container {
+    height: 250px;            /* Aún más pequeño en pantallas muy pequeñas */
   }
 }

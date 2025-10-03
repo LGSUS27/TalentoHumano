@@ -166,8 +166,8 @@ html, body {
 .dashboard-main {
   flex: 1;
   padding: 1.5rem;
-  margin-top: 160px; /* Compensa header (80px) + table-actions (80px) */
-  min-height: calc(100vh - 160px); /* Altura mínima menos header y actions */
+  margin-top: 0; /* Remover margin-top ya que los elementos están posicionados fixed */
+  min-height: 100vh; /* Altura completa del viewport */
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
@@ -181,7 +181,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0; /* Remover margin-bottom que puede causar solapamiento */
   padding: 1rem 0;
   flex-wrap: wrap;
   gap: 1rem;
@@ -196,6 +196,9 @@ html, body {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 80px; /* Altura fija para cálculo preciso */
+  min-height: 80px;
+  max-height: 80px;
 }
 .crear-btn {
   background: linear-gradient(135deg, #00695C 0%, #004d40 100%);
@@ -487,7 +490,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 1001;
   animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

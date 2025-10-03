@@ -4,7 +4,7 @@ function Protected() {
   const [message, setMessage] = useState('');
 
   const handleFetchProtected = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
     try {
       const response = await fetch('http://localhost:3000/protected', {
