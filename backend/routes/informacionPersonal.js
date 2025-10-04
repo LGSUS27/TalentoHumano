@@ -230,12 +230,16 @@ router.post("/", uploadMultiple.fields([
 
     // Verificar si ya existe información personal para este empleado
     const existingQuery = await pool.query(
-      "SELECT id FROM informacion_personal WHERE empleado_id = $1",
+      "SELECT id, documento_pdf, imagen_personal FROM informacion_personal WHERE empleado_id = $1",
       [empleado_id]
     );
 
     let result;
     if (existingQuery.rows.length > 0) {
+      // Obtener archivos anteriores para eliminarlos después
+      const oldDocumentoPdf = existingQuery.rows[0].documento_pdf;
+      const oldImagenPersonal = existingQuery.rows[0].imagen_personal;
+
       // Actualizar registro existente
       result = await pool.query(
         `UPDATE informacion_personal SET
@@ -275,6 +279,31 @@ router.post("/", uploadMultiple.fields([
           empleado_id,
         ]
       );
+
+      // Eliminar archivos anteriores si se subieron nuevos
+      if (documentoPdf && oldDocumentoPdf && oldDocumentoPdf !== documentoPdf) {
+        try {
+          const oldFilePath = path.join(UPLOAD_DIR, oldDocumentoPdf);
+          if (fs.existsSync(oldFilePath)) {
+            fs.unlinkSync(oldFilePath);
+            console.log(`Archivo PDF anterior eliminado: ${oldDocumentoPdf}`);
+          }
+        } catch (error) {
+          console.warn(`No se pudo eliminar el archivo PDF anterior ${oldDocumentoPdf}:`, error.message);
+        }
+      }
+
+      if (imagenPersonal && oldImagenPersonal && oldImagenPersonal !== imagenPersonal) {
+        try {
+          const oldFilePath = path.join(UPLOAD_DIR, oldImagenPersonal);
+          if (fs.existsSync(oldFilePath)) {
+            fs.unlinkSync(oldFilePath);
+            console.log(`Imagen anterior eliminada: ${oldImagenPersonal}`);
+          }
+        } catch (error) {
+          console.warn(`No se pudo eliminar la imagen anterior ${oldImagenPersonal}:`, error.message);
+        }
+      }
     } else {
       // Crear nuevo registro
       result = await pool.query(

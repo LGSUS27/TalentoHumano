@@ -79,6 +79,17 @@ router.post("/", upload.fields(multerFields), async (req, res) => {
       return res.status(400).json({ success: false, message: "No se adjuntó ningún PDF" });
     }
 
+    // Obtener archivos anteriores para eliminarlos después (solo si es una actualización)
+    let oldFiles = {};
+    const existingQuery = await pool.query(
+      `SELECT ${FIELDS.join(", ")} FROM otros_documentos WHERE empleado_id = $1`,
+      [empleado_id]
+    );
+    
+    if (existingQuery.rows.length > 0) {
+      oldFiles = existingQuery.rows[0];
+    }
+
     // UPSERT:
     // - Insertamos NULL en los que no llegaron
     // - ON CONFLICT por empleado_id
@@ -101,6 +112,25 @@ router.post("/", upload.fields(multerFields), async (req, res) => {
     `;
 
     const { rows } = await pool.query(sql, values);
+
+    // Eliminar archivos anteriores si se subieron nuevos
+    for (const field of FIELDS) {
+      const newFile = filesMap[field];
+      const oldFile = oldFiles[field];
+      
+      if (newFile && oldFile && oldFile !== newFile) {
+        try {
+          const oldFilePath = path.join(UPLOAD_DIR, oldFile);
+          if (fs.existsSync(oldFilePath)) {
+            fs.unlinkSync(oldFilePath);
+            console.log(`Archivo anterior eliminado (${field}): ${oldFile}`);
+          }
+        } catch (error) {
+          console.warn(`No se pudo eliminar el archivo anterior ${oldFile} (${field}):`, error.message);
+        }
+      }
+    }
+
     return res.json({ success: true, data: rows[0] });
   } catch (err) {
     console.error("Error POST /api/otros-documentos:", err);

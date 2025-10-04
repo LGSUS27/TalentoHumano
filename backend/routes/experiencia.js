@@ -1,12 +1,15 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 import pool from '../db.js';
 
 const router = express.Router();
 
+const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads'),
+  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
   filename: (req, file, cb) => {
     const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, uniqueName + path.extname(file.originalname));
@@ -122,6 +125,19 @@ router.put('/:id', upload.single('archivo'), async (req, res) => {
        WHERE id = $9 RETURNING *`,
       [empleado_id, empresaFinal, cargoFinal, tipoVinculacionFinal, fechaInicioFinal, fechaFinFinal, funcionesFinal, soporteFinal, id]
     );
+
+    // Eliminar archivo anterior si se subió uno nuevo
+    if (soporte && current.soporte && current.soporte !== soporte) {
+      try {
+        const oldFilePath = path.join(UPLOAD_DIR, current.soporte);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+          console.log(`Archivo de experiencia anterior eliminado: ${current.soporte}`);
+        }
+      } catch (error) {
+        console.warn(`No se pudo eliminar el archivo anterior ${current.soporte}:`, error.message);
+      }
+    }
 
     res.json(result.rows[0]);
   } catch (error) {

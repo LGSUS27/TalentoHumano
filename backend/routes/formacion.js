@@ -1,14 +1,17 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 import pool from '../db.js';
 
 const router = express.Router();
 
 // Configuración de Multer
+const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads');
+    cb(null, UPLOAD_DIR);
   },
   filename: function (req, file, cb) {
     const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -128,6 +131,19 @@ router.put('/:id', upload.single('archivo'), async (req, res) => {
        WHERE id = $9 RETURNING *`,
       [empleado_id, institucionFinal, programaFinal, tipoFinal, nivelFinal, graduadoBoolean, fechaFinal, archivoFinal, id]
     );
+
+    // Eliminar archivo anterior si se subió uno nuevo
+    if (archivo && current.archivo && current.archivo !== archivo) {
+      try {
+        const oldFilePath = path.join(UPLOAD_DIR, current.archivo);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+          console.log(`Archivo de formación anterior eliminado: ${current.archivo}`);
+        }
+      } catch (error) {
+        console.warn(`No se pudo eliminar el archivo anterior ${current.archivo}:`, error.message);
+      }
+    }
 
     // Convertir boolean a string para el frontend
     const formacion = {
