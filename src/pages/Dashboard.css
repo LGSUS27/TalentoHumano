@@ -213,6 +213,9 @@ html, body {
   position: relative;
   overflow: hidden;
   box-shadow: 0 6px 20px rgba(0, 105, 92, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .crear-btn::before {
@@ -367,7 +370,7 @@ html, body {
 .tabla-empleados thead th:nth-child(8),
 .tabla-empleados tbody td:nth-child(8){ width: auto; min-width: 80px; } /* Cargo */
 .tabla-empleados thead th:nth-child(9),
-.tabla-empleados tbody td:nth-child(9){ width: auto; min-width: 160px; } /* Acciones */
+.tabla-empleados tbody td:nth-child(9){ width: auto; min-width: 200px; } /* Acciones */
 
 /* Nombres largos: elipsis con tooltip desde JSX (title="...") */
 .col-nombre { overflow: hidden; }
@@ -398,14 +401,26 @@ html, body {
   display: flex;
   flex-wrap: wrap;          /* bajan a segunda línea si no caben */
   gap: 6px;
-  justify-content: flex-start;  /* ⬅️ izquierda a derecha */
+  justify-content: flex-start;  /* izquierda a derecha */
   align-items: center;
 }
 .tabla-empleados td.col-acciones button{
-  padding: 4px 8px; /* Padding más compacto */
-  font-size: 11px; /* Fuente más pequeña */
-  line-height: 1.1;
+  padding: 4px 8px !important; /* Padding más compacto */
+  font-size: 11px !important; /* Fuente más pequeña */
+  line-height: 1.1 !important;
   white-space: nowrap; /* Evita que el texto se rompa */
+  height: 20px !important; /* Altura fija para todos los botones */
+  min-height: 20px !important;
+  max-height: 20px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important; /* Espacio entre icono y texto */
+}
+
+.tabla-empleados td.col-acciones button .btn-icon {
+  width: 12px !important;
+  height: 12px !important;
 }
 
 .employee-table tbody tr:nth-child(even) {
@@ -434,7 +449,9 @@ html, body {
 .info-btn,
 .formacion-btn,
 .experiencia-btn,
-.otros-documentos-btn {
+.otros-documentos-btn,
+.edit-btn,
+.delete-btn {
   background: linear-gradient(135deg, #00695C 0%, #004d40 100%);
   color: white;
   border: none;
@@ -447,12 +464,41 @@ html, body {
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 105, 92, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Estilos para iconos en botones */
+.btn-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Estilos específicos para botón de editar */
+.edit-btn {
+  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%) !important;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2) !important;
+}
+
+/* Estilos específicos para botón de eliminar */
+.delete-btn {
+  background: linear-gradient(135deg, #D32F2F 0%, #C62828 100%) !important;
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2) !important;
 }
 
 .info-btn::before,
 .formacion-btn::before,
 .experiencia-btn::before,
-.otros-documentos-btn::before {
+.otros-documentos-btn::before,
+.edit-btn::before,
+.delete-btn::before {
   content: '';
   position: absolute;
   top: 0;
@@ -466,7 +512,9 @@ html, body {
 .info-btn:hover::before,
 .formacion-btn:hover::before,
 .experiencia-btn:hover::before,
-.otros-documentos-btn:hover::before {
+.otros-documentos-btn:hover::before,
+.edit-btn:hover::before,
+.delete-btn:hover::before {
   left: 100%;
 }
 
@@ -477,6 +525,18 @@ html, body {
   background: linear-gradient(135deg, #004d40 0%, #00251a 100%);
   transform: translateY(-2px) scale(1.05);
   box-shadow: 0 8px 20px rgba(0, 105, 92, 0.4);
+}
+
+.edit-btn:hover {
+  background: linear-gradient(135deg, #F57C00 0%, #EF6C00 100%) !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4) !important;
+}
+
+.delete-btn:hover {
+  background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
 }
 
 /* =======================
@@ -626,6 +686,113 @@ html, body {
   display: block;
   margin-left: auto;
   justify-content: center;
+}
+
+/* =======================
+   Modal de confirmación de eliminación
+======================= */
+.delete-confirm-modal {
+  max-width: 500px;
+  text-align: center;
+}
+
+.delete-confirm-modal h3 {
+  color: #D32F2F;
+  margin-bottom: 1rem;
+}
+
+.delete-confirm-modal p {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.warning-text {
+  color: #D32F2F;
+  font-weight: 600;
+  background: rgba(211, 47, 47, 0.1);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border-left: 4px solid #D32F2F;
+}
+
+/* =======================
+   Botones de modal
+======================= */
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.cancel-btn {
+  background: linear-gradient(135deg, #757575 0%, #616161 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(117, 117, 117, 0.3);
+}
+
+.cancel-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.cancel-btn:hover::before {
+  left: 100%;
+}
+
+.cancel-btn:hover {
+  background: linear-gradient(135deg, #616161 0%, #424242 100%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(117, 117, 117, 0.4);
+}
+
+.delete-confirm-btn {
+  background: linear-gradient(135deg, #D32F2F 0%, #C62828 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(211, 47, 47, 0.3);
+}
+
+.delete-confirm-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
+}
+
+.delete-confirm-btn:hover::before {
+  left: 100%;
+}
+
+.delete-confirm-btn:hover {
+  background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(211, 47, 47, 0.4);
 }
 
 /* =======================
@@ -902,7 +1069,7 @@ html, body {
   .tabla-empleados thead th:nth-child(1),
   .tabla-empleados tbody td:nth-child(1){ min-width: 100px; } /* Nombre */
   .tabla-empleados thead th:nth-child(9),
-  .tabla-empleados tbody td:nth-child(9){ min-width: 140px; } /* Acciones */
+  .tabla-empleados tbody td:nth-child(9){ min-width: 180px; } /* Acciones */
   
   .employee-table th,
   .employee-table td {
@@ -915,7 +1082,7 @@ html, body {
   .tabla-empleados thead th:nth-child(1),
   .tabla-empleados tbody td:nth-child(1){ min-width: 90px; } /* Nombre */
   .tabla-empleados thead th:nth-child(9),
-  .tabla-empleados tbody td:nth-child(9){ min-width: 120px; } /* Acciones */
+  .tabla-empleados tbody td:nth-child(9){ min-width: 160px; } /* Acciones */
   
   .employee-table th,
   .employee-table td {
@@ -928,7 +1095,7 @@ html, body {
   .tabla-empleados thead th:nth-child(1),
   .tabla-empleados tbody td:nth-child(1){ min-width: 80px; } /* Nombre */
   .tabla-empleados thead th:nth-child(9),
-  .tabla-empleados tbody td:nth-child(9){ min-width: 100px; } /* Acciones */
+  .tabla-empleados tbody td:nth-child(9){ min-width: 140px; } /* Acciones */
   
   .employee-table th,
   .employee-table td {
@@ -946,7 +1113,7 @@ html, body {
   .tabla-empleados thead th:nth-child(1),
   .tabla-empleados tbody td:nth-child(1){ min-width: 80px; } /* Nombre */
   .tabla-empleados thead th:nth-child(9),
-  .tabla-empleados tbody td:nth-child(9){ min-width: 120px; } /* Acciones */
+  .tabla-empleados tbody td:nth-child(9){ min-width: 160px; } /* Acciones */
   
   /* Scroll horizontal en móviles para tabla - se maneja en el wrapper interno */
   .employee-table {
@@ -958,7 +1125,7 @@ html, body {
   .tabla-empleados thead th:nth-child(1),
   .tabla-empleados tbody td:nth-child(1){ min-width: 70px; } /* Nombre */
   .tabla-empleados thead th:nth-child(9),
-  .tabla-empleados tbody td:nth-child(9){ min-width: 100px; } /* Acciones */
+  .tabla-empleados tbody td:nth-child(9){ min-width: 140px; } /* Acciones */
   
   .employee-table {
     min-width: 700px;
@@ -969,7 +1136,7 @@ html, body {
   .tabla-empleados thead th:nth-child(1),
   .tabla-empleados tbody td:nth-child(1){ min-width: 60px; } /* Nombre */
   .tabla-empleados thead th:nth-child(9),
-  .tabla-empleados tbody td:nth-child(9){ min-width: 80px; } /* Acciones */
+  .tabla-empleados tbody td:nth-child(9){ min-width: 120px; } /* Acciones */
   
   .employee-table {
     min-width: 600px;

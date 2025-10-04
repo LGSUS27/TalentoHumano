@@ -16,9 +16,9 @@ function Protected() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage(`✅ Acceso permitido: ${JSON.stringify(data.user)}`);
+        setMessage(`Acceso permitido: ${JSON.stringify(data.user)}`);
       } else {
-        setMessage(`❌ ${data.message}`);
+        setMessage(`Error: ${data.message}`);
       }
     } catch (error) {
       console.error('Error al acceder a ruta protegida:', error);

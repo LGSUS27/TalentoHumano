@@ -359,22 +359,47 @@ try {
 router.delete('/:id', verificarToken, async (req, res) => {
 try {
     const { id } = req.params;
+    console.log(`Intentando eliminar empleado con ID: ${id}`);
+    
+    // Verificar que el empleado existe antes de eliminarlo
+    const checkResult = await pool.query('SELECT id, nombre FROM empleados WHERE id = $1', [id]);
+    
+    if (checkResult.rows.length === 0) {
+        console.log(`Empleado con ID ${id} no encontrado`);
+        return res.status(404).json({
+            success: false,
+            message: 'Empleado no encontrado'
+        });
+    }
+    
+    console.log(`Empleado encontrado: ${checkResult.rows[0].nombre} (ID: ${checkResult.rows[0].id})`);
+    
+    // Eliminar el empleado (las tablas relacionadas se eliminarán automáticamente por CASCADE)
     const { rows } = await pool.query(
       'DELETE FROM empleados WHERE id = $1 RETURNING *',
     [id]
     );
 
-    if (rows.length === 0) {
-    return res.status(404).json({
-        success: false,
-        message: 'Empleado no encontrado'
+    console.log(`Empleado eliminado exitosamente: ${rows[0].nombre} (ID: ${rows[0].id})`);
+    
+    res.json({ 
+        success: true, 
+        message: 'Empleado eliminado exitosamente',
+        empleado: rows[0]
     });
-    }
-
-    res.json({ success: true, message: 'Empleado eliminado exitosamente' });
 } catch (error) {
     console.error('Error al eliminar empleado:', error);
-    res.status(500).json({ success: false, message: 'Error al eliminar empleado' });
+    console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        detail: error.detail,
+        constraint: error.constraint
+    });
+    res.status(500).json({ 
+        success: false, 
+        message: 'Error al eliminar empleado',
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Error interno del servidor'
+    });
 }
 });
 
