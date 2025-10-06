@@ -15,6 +15,27 @@ const Formacion = ({ empleado, onClose }) => {
     fecha: "",
     archivo: null,
   });
+
+  // Opciones de nivel según el tipo de formación
+  const opcionesNivel = {
+    "Formal": [
+      "Bachiller",
+      "Técnico profesional",
+      "Tecnológico",
+      "Profesional",
+      "Especialización",
+      "Maestría",
+      "Doctorado"
+    ],
+    "No formal": [
+      "Seminario",
+      "Curso atención a víctimas de violencia sexual",
+      "Curso soporte vital básico o avanzado",
+      "Curso de humanización",
+      "Curso de seguridad del paciente",
+      "Otro curso"
+    ]
+  };
   const [editingForm, setEditingForm] = useState(null);
   const API_URL = "http://localhost:3000";
   
@@ -44,6 +65,13 @@ const Formacion = ({ empleado, onClose }) => {
     const { name, value, files } = e.target;
     if (name === "archivo") {
       setFormData({ ...formData, archivo: files[0] });
+    } else if (name === "tipo") {
+      // Cuando cambia el tipo, resetear el nivel
+      setFormData({
+        ...formData,
+        [name]: value,
+        nivel: "Seleccionar nivel..."
+      });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -266,14 +294,12 @@ const Formacion = ({ empleado, onClose }) => {
             <div className="form-group">
               <label htmlFor="nivel">Nivel educativo *</label>
               <select name="nivel" id="nivel" value={formData.nivel} onChange={handleChange} required>
-                <option value="Seleccionar nivel..." disabled>Seleccionar nivel...</option>
-                <option value="Bachiller">Bachiller</option>
-                <option value="Tecnico profesional">Técnico profesional</option>
-                <option value="Tecnologico">Tecnológico</option>
-                <option value="Profesional">Profesional</option>
-                <option value="Especialización">Especialización</option>
-                <option value="Maestria">Maestría</option>
-                <option value="Doctorado">Doctorado</option>
+                <option value="Seleccionar nivel..." disabled>
+                  {formData.tipo === "Seleccionar tipo..." ? "Primero seleccione el tipo" : "Seleccionar nivel..."}
+                </option>
+                {formData.tipo !== "Seleccionar tipo..." && opcionesNivel[formData.tipo]?.map((opcion) => (
+                  <option key={opcion} value={opcion}>{opcion}</option>
+                ))}
               </select>
             </div>
             <div className="form-group">
