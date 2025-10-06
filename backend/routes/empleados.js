@@ -1,23 +1,32 @@
 import express from 'express';
 import pool from '../db.js';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 
 // Middleware para verificar token JWT
 const verificarToken = (req, res, next) => {
-const authHeader = req.headers['authorization'];
-if (!authHeader) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) {
     return res.status(401).json({ success: false, message: 'Token no proporcionado' });
-}
+  }
 
-const token = authHeader.split(' ')[1];
-if (!token) {
+  const token = authHeader.split(' ')[1];
+  if (!token) {
     return res.status(401).json({ success: false, message: 'Token no válido' });
-}
+  }
 
-  // Aquí deberías verificar el JWT, por ahora lo omitimos para simplificar
-  // En producción debes implementar la verificación completa
-next();
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ success: false, message: 'Token inválido o expirado' });
+    }
+    req.user = decoded;
+    next();
+  });
 };
 
 // GET /empleados - Obtener todos los empleados
@@ -26,7 +35,6 @@ try {
     const { rows } = await pool.query(
       'SELECT * FROM empleados ORDER BY created_at DESC'
     );
-    console.log('Empleados desde la base de datos:', rows);
     res.json({ empleados: rows });
 } catch (error) {
     console.error('Error al obtener empleados:', error);
@@ -155,8 +163,8 @@ try {
     }
 
     const { rows } = await pool.query(
-    `INSERT INTO empleados (nombre, numeroIdentificacion, contrato, fecha_inicio, fecha_fin, sueldo, tipo_contrato, cargo)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `INSERT INTO empleados (nombre, numeroIdentificacion, contrato, fecha_inicio, fecha_fin, sueldo, tipo_contrato, cargo, estado)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'activo')
       RETURNING *`,
     [nombre, numeroIdentificacion, contrato, fecha_inicio, fecha_fin, sueldo, tipo_contrato, cargo]
     );
@@ -382,8 +390,8 @@ try {
 
     console.log(`Empleado eliminado exitosamente: ${rows[0].nombre} (ID: ${rows[0].id})`);
     
-    res.json({ 
-        success: true, 
+    res.json({
+        success: true,
         message: 'Empleado eliminado exitosamente',
         empleado: rows[0]
     });
@@ -395,10 +403,69 @@ try {
         detail: error.detail,
         constraint: error.constraint
     });
-    res.status(500).json({ 
-        success: false, 
+    res.status(500).json({
+        success: false,
         message: 'Error al eliminar empleado',
         error: process.env.NODE_ENV === 'development' ? error.message : 'Error interno del servidor'
+    });
+}
+});
+
+// PATCH /empleados/:id/estado - Cambiar estado del empleado (activo/desvinculado)
+router.patch('/:id/estado', verificarToken, async (req, res) => {
+try {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    // Validar que el estado sea válido
+    if (!estado || !['activo', 'desvinculado'].includes(estado)) {
+        return res.status(400).json({
+            success: false,
+            message: 'El estado debe ser "activo" o "desvinculado"'
+        });
+    }
+
+    // Verificar que el empleado existe
+    const checkResult = await pool.query('SELECT id, nombre, estado FROM empleados WHERE id = $1', [id]);
+    
+    if (checkResult.rows.length === 0) {
+        return res.status(404).json({
+            success: false,
+            message: 'Empleado no encontrado'
+        });
+    }
+
+    const empleadoActual = checkResult.rows[0];
+    
+    // Si ya tiene el mismo estado, no hacer nada
+    if (empleadoActual.estado === estado) {
+        return res.json({
+            success: true,
+            message: `El empleado ya tiene el estado "${estado}"`,
+            empleado: empleadoActual
+        });
+    }
+
+    // Actualizar el estado
+    const { rows } = await pool.query(
+        'UPDATE empleados SET estado = $1 WHERE id = $2 RETURNING *',
+        [estado, id]
+    );
+
+    const mensaje = estado === 'activo'
+        ? 'Empleado reactivado exitosamente'
+        : 'Empleado desvinculado exitosamente';
+
+    res.json({
+        success: true,
+        message: mensaje,
+        empleado: rows[0]
+    });
+} catch (error) {
+    console.error('Error al cambiar estado del empleado:', error);
+    res.status(500).json({
+        success: false,
+        message: 'Error al cambiar estado del empleado'
     });
 }
 });

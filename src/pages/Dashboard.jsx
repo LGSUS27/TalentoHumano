@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showDismissedEmployees, setShowDismissedEmployees] = useState(false);
   
   // Hook para manejar alertas
   const { alerts, showSuccess, showError, removeAlert } = useAlert();
@@ -59,19 +60,32 @@ const Dashboard = () => {
 
   const loadEmployees = useCallback(async () => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    
+    if (!token) {
+      navigate("/");
+      return;
+    }
+    
     try {
-      const response = await fetch("http://localhost:3000/empleados", {
+      const response = await fetch(`${API}/empleados`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
+      
       if (response.ok) {
-        console.log("Datos de empleados recibidos:", data.empleados);
-        console.log("Primer empleado:", data.empleados[0]);
         setEmployees(data.empleados);
+      } else if (response.status === 403) {
+        // Limpiar tokens expirados
+        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
+        localStorage.removeItem("rememberMe");
+        navigate("/");
       } else {
         navigate("/");
       }
-    } catch {
+    } catch (error) {
+      console.error("Error de conexión:", error);
       navigate("/");
     }
   }, [navigate]);
@@ -81,7 +95,10 @@ const Dashboard = () => {
   }, [loadEmployees]);
 
   const handleLogout = () => {
+    // Limpiar todos los tokens y datos de sesión
     localStorage.removeItem("token");
+    localStorage.removeItem("rememberMe");
+    sessionStorage.removeItem("token");
     setSelectedEmployee(null); // Limpiar empleado seleccionado
     navigate("/");
   };
@@ -230,7 +247,8 @@ const Dashboard = () => {
 
     
     try {
-      const response = await fetch("http://localhost:3000/empleados", {
+      const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const response = await fetch(`${API}/empleados`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -325,7 +343,8 @@ const Dashboard = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/empleados/${selectedEmployee.id}`, {
+      const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const response = await fetch(`${API}/empleados/${selectedEmployee.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -391,11 +410,9 @@ const Dashboard = () => {
       return;
     }
 
-    console.log("Intentando eliminar empleado:", selectedEmployee);
-    console.log("ID del empleado:", selectedEmployee.id);
-
     try {
-      const response = await fetch(`http://localhost:3000/empleados/${selectedEmployee.id}`, {
+      const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const response = await fetch(`${API}/empleados/${selectedEmployee.id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -448,11 +465,73 @@ const Dashboard = () => {
     }
   };
 
-  const filteredEmployees = employees.filter((emp) =>
-    Object.values(emp).some((value) =>
+  const handleToggleEmployeeStatus = async (employee) => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    // Normalizar el estado (empleados sin estado se consideran activos)
+    const currentStatus = employee.estado || 'activo';
+    const newStatus = currentStatus === 'activo' ? 'desvinculado' : 'activo';
+    
+    try {
+      const response = await fetch(`${API}/empleados/${employee.id}/estado`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ estado: newStatus }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        setEmployees((prev) => 
+          prev.map((emp) => 
+            emp.id === employee.id ? { ...emp, estado: newStatus } : emp
+          )
+        );
+        
+        const message = newStatus === 'activo' 
+          ? 'Empleado reactivado exitosamente' 
+          : 'Empleado desvinculado exitosamente';
+        showSuccess(message);
+      } else {
+        let errorMessage = "Error al cambiar estado del empleado";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (parseError) {
+          errorMessage = `Error del servidor (${response.status}): ${response.statusText}`;
+        }
+        showError(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error de red:", error);
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        showError("Error de conexión: No se puede conectar con el servidor. Verifica que el backend esté ejecutándose.");
+      } else {
+        showError(`Error inesperado: ${error.message}`);
+      }
+    }
+  };
+
+  // Filtrar empleados por estado y término de búsqueda
+  const filteredEmployees = employees.filter((emp) => {
+    const matchesSearch = Object.values(emp).some((value) =>
       String(value ?? "").toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+    );
+    
+    // Normalizar el estado (empleados sin estado se consideran activos)
+    const estadoNormalizado = emp.estado || 'activo';
+    
+    // Si estamos mostrando empleados desvinculados, mostrar solo los desvinculados
+    if (showDismissedEmployees) {
+      return matchesSearch && estadoNormalizado === 'desvinculado';
+    }
+    
+    // Por defecto, mostrar solo empleados activos
+    return matchesSearch && estadoNormalizado === 'activo';
+  });
 
   return (
     <div className="dashboard-container">
@@ -495,6 +574,32 @@ const Dashboard = () => {
               />
             </div>
           </div>
+          
+          <div className="view-controls">
+            <button
+              className={`view-toggle-btn ${!showDismissedEmployees ? 'active' : ''}`}
+              onClick={() => setShowDismissedEmployees(false)}
+            >
+              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span>Empleados Activos</span>
+            </button>
+            <button
+              className={`view-toggle-btn ${showDismissedEmployees ? 'active' : ''}`}
+              onClick={() => setShowDismissedEmployees(true)}
+            >
+              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <span>Empleados Desvinculados</span>
+            </button>
+          </div>
+          
           <button className="crear-btn" onClick={openModal}>
             <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19"/>
@@ -505,6 +610,12 @@ const Dashboard = () => {
         </div>
 
         <div className="employee-table-container">
+          <div className="table-header">
+            <h3 className="table-title">
+              {showDismissedEmployees ? 'Empleados Desvinculados' : 'Empleados Activos'}
+              <span className="employee-count">({filteredEmployees.length})</span>
+            </h3>
+          </div>
           <div className="employee-table-wrapper">
             <table className="employee-table tabla-empleados">
             <thead>
@@ -575,6 +686,32 @@ const Dashboard = () => {
                           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                         </svg>
                         <span>Editar</span>
+                      </button>
+                      <button 
+                        className={`status-toggle-btn ${(emp.estado || 'activo') === 'desvinculado' ? 'reactivate' : 'dismiss'}`}
+                        onClick={() => handleToggleEmployeeStatus(emp)} 
+                        title={(emp.estado || 'activo') === 'desvinculado' ? 'Reactivar Empleado' : 'Desvincular Empleado'}
+                      >
+                        <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          {(emp.estado || 'activo') === 'desvinculado' ? (
+                            <>
+                              <path d="M9 12l2 2 4-4"/>
+                              <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"/>
+                              <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"/>
+                              <path d="M13 12h3a2 2 0 0 1 2 2v1"/>
+                              <path d="M11 12H8a2 2 0 0 0-2 2v1"/>
+                            </>
+                          ) : (
+                            <>
+                              <path d="M9 12l2 2 4-4"/>
+                              <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"/>
+                              <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"/>
+                              <path d="M13 12h3a2 2 0 0 1 2 2v1"/>
+                              <path d="M11 12H8a2 2 0 0 0-2 2v1"/>
+                            </>
+                          )}
+                        </svg>
+                        <span>{(emp.estado || 'activo') === 'desvinculado' ? 'Reactivar' : 'Desvincular'}</span>
                       </button>
                       <button className="delete-btn" onClick={() => openDeleteConfirm(emp)} title="Eliminar Empleado">
                         <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

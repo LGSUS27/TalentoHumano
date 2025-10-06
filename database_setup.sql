@@ -26,6 +26,7 @@ CREATE TABLE empleados (
     sueldo DECIMAL(12,2),
     tipo_contrato VARCHAR(100),
     cargo VARCHAR(100),
+    estado VARCHAR(20) DEFAULT 'activo' CHECK (estado IN ('activo', 'desvinculado')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

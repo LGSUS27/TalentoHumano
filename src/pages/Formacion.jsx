@@ -131,12 +131,12 @@ const Formacion = ({ empleado, onClose }) => {
       return;
     }
 
-    // Validar fecha
+    // Validar fecha - solo si es graduado, la fecha no puede ser futura
     const fechaFormacion = new Date(formData.fecha);
     const hoy = new Date();
 
-    if (fechaFormacion > hoy) {
-      showError("La fecha no puede ser futura");
+    if (formData.graduado === "Sí" && fechaFormacion > hoy) {
+      showError("La fecha de terminación no puede ser futura para una persona graduada");
       return;
     }
 
@@ -233,6 +233,23 @@ const Formacion = ({ empleado, onClose }) => {
         formData.graduado === "Seleccionar si es graduado..." || 
         !formData.fecha) {
       showError("Por favor, complete todos los campos obligatorios");
+      return;
+    }
+
+    // Validar fecha - solo si es graduado, la fecha no puede ser futura
+    const fechaFormacion = new Date(formData.fecha);
+    const hoy = new Date();
+
+    if (formData.graduado === "Sí" && fechaFormacion > hoy) {
+      showError("La fecha de terminación no puede ser futura para una persona graduada");
+      return;
+    }
+
+    // Validar que la fecha no sea muy antigua (más de 100 años)
+    const fechaMinima = new Date();
+    fechaMinima.setFullYear(fechaMinima.getFullYear() - 100);
+    if (fechaFormacion < fechaMinima) {
+      showError("La fecha no puede ser anterior a 1924");
       return;
     }
 

@@ -33,7 +33,7 @@ app.use(
       return cb(new Error("CORS no permitido"), false);
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
@@ -42,6 +42,7 @@ app.options("*", cors());
 
 // JSON
 app.use(express.json());
+
 
 // Servir archivos subidos
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
@@ -78,20 +79,25 @@ const verificarToken = (req, res, next) => {
 app.post(["/login", "/api/login"], async (req, res) => {
   try {
     const { username, password } = req.body || {};
-    if (!username || !password)
+    
+    if (!username || !password) {
       return res.status(400).json({ success: false, message: "Faltan campos obligatorios" });
+    }
 
     const r = await pool.query(
       "SELECT * FROM usuarios WHERE username = $1 AND password = $2",
       [username, password]
     );
-    if (!r.rows.length)
+    
+    if (!r.rows.length) {
       return res.status(401).json({ success: false, message: "Credenciales incorrectas" });
+    }
 
     const user = r.rows[0];
     const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
       expiresIn: "1h",
     });
+    
     return res.json({ success: true, token });
   } catch (err) {
     console.error("Error en /login:", err);

@@ -74,12 +74,16 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    const API = import.meta.env.VITE_API_URL;
-
+    const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    
     try {
       const response = await axios.post(`${API}/login`, { username, password });
 
       if (response.data?.success && response.data?.token) {
+        // Limpiar tokens viejos antes de guardar el nuevo
+        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
+        
         // Guardar token con opción de recordar
         if (rememberMe) {
           localStorage.setItem("token", response.data.token);
@@ -95,7 +99,7 @@ const Login = () => {
           navigate("/dashboard", { replace: true });
         }, 1000);
       } else {
-        showError(response.data.message || "Credenciales incorrectas");
+        showError(response.data?.message || "Credenciales incorrectas");
       }
     } catch (err) {
       console.error("Error en la solicitud:", err);
