@@ -13,10 +13,12 @@
   padding: 2rem;
   border-radius: 10px;
   width: 100%;
-  max-width: 800px;
+  min-width: 800px;
+  max-width: 95vw;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   overflow-y: auto;
   max-height: 95vh;
+  margin: 0 auto;
 }
 
 .otros-docs-modal h2 {
@@ -28,6 +30,37 @@
 .otros-docs-form {
   display: grid;
   gap: 1.2rem;
+}
+
+/* Indicadores de límites */
+.limites-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.limite-total {
+  color: #475569;
+  font-weight: 500;
+}
+
+.limite-contratos {
+  color: #00695C;
+  font-weight: 600;
+}
+
+.limites-info .limite-total:has-text("30") {
+  color: #dc2626;
+}
+
+.limites-info .limite-contratos:has-text("10") {
+  color: #dc2626;
 }
 
 .otros-docs-form label {
@@ -176,9 +209,11 @@
 
 .otros-docs-buttons {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
   margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
 }
 
 .otros-docs-buttons button {
@@ -241,55 +276,129 @@
   transition: background-color .2s ease, box-shadow .2s ease, transform .02s ease;
 }
 
-/* "Ver PDF actual" (el <a>) */
-.archivo-actual a{
-  background: var(--brand-bg);
-  color: var(--brand-fg);
-  border-color: var(--brand-bd);
-}
-.archivo-actual a:hover{
-  background: var(--brand-bg-hover);
-  box-shadow: 0 1px 0 rgba(0,0,0,.05);
-}
-.archivo-actual a:focus-visible{
-  outline: 2px solid var(--brand-bd);
-  outline-offset: 2px;
-}
-.archivo-actual a::before{
-  content: "";
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14,2 14,8 20,8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3Cpolyline points='10,9 9,9 8,9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-size: contain;
-  margin-right: 6px;
-  vertical-align: middle;
+/* Botón "Ver PDF" mejorado */
+.archivo-actual a {
+  background: linear-gradient(135deg, #00695C 0%, #004d40 100%);
+  color: #ffffff;
+  border: 1px solid #00695C;
+  box-shadow: 0 2px 4px rgba(0, 105, 92, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
-/* "Eliminar" (tu botón ya tiene .btn-danger) */
-.archivo-actual .btn-danger{
-  background: var(--danger-bg);
-  color: var(--danger-fg);
-  border-color: var(--danger-bd);
+.archivo-actual a::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
 }
-.archivo-actual .btn-danger:hover{
-  background: var(--danger-bg-hover);
+
+.archivo-actual a:hover::after {
+  left: 100%;
 }
-.archivo-actual .btn-danger:focus-visible{
-  outline: 2px solid var(--danger-bd);
-  outline-offset: 2px;
-}
-.archivo-actual .btn-danger::before{
+
+.archivo-actual a::before {
   content: "";
   display: inline-block;
   width: 16px;
   height: 16px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='3,6 5,6 21,6'/%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/%3E%3Cline x1='10' y1='11' x2='10' y2='17'/%3E%3Cline x1='14' y1='11' x2='14' y2='17'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14,2 14,8 20,8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3Cpolyline points='10,9 9,9 8,9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-size: contain;
   margin-right: 6px;
   vertical-align: middle;
+  transition: transform 0.2s ease;
+}
+
+.archivo-actual a:hover {
+  background: linear-gradient(135deg, #004d40 0%, #00251a 100%);
+  border-color: #004d40;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 105, 92, 0.3);
+  text-decoration: none;
+}
+
+.archivo-actual a:hover::before {
+  transform: scale(1.1);
+}
+
+.archivo-actual a:active {
+  background: linear-gradient(135deg, #00251a 0%, #001a13 100%);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 105, 92, 0.4);
+}
+
+.archivo-actual a:focus-visible {
+  outline: 2px solid #00695C;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(0, 105, 92, 0.1);
+}
+
+/* Botón de eliminar mejorado */
+.archivo-actual .btn-danger {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #ffffff;
+  border: 1px solid #dc2626;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.archivo-actual .btn-danger::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.archivo-actual .btn-danger:hover::after {
+  left: 100%;
+}
+
+.archivo-actual .btn-danger::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpolyline points='3,6 5,6 21,6'/%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/%3E%3Cline x1='10' y1='11' x2='10' y2='17'/%3E%3Cline x1='14' y1='11' x2='14' y2='17'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin-right: 6px;
+  vertical-align: middle;
+  transition: transform 0.2s ease;
+}
+
+.archivo-actual .btn-danger:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  border-color: #b91c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.archivo-actual .btn-danger:hover::before {
+  transform: scale(1.1);
+}
+
+.archivo-actual .btn-danger:active {
+  background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.4);
+}
+
+.archivo-actual .btn-danger:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
 }
 
 /* Feedback al hacer clic */
@@ -306,4 +415,293 @@
   background: #f4f4f5;
   color: var(--ink-600);
   font-size: .8rem;
+}
+
+/* Estilos para la sección de Contratos Otrosis */
+.contratos-otrosis-section {
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f9fafb;
+}
+
+.contratos-otrosis-section > label {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* Contratos existentes */
+.contratos-existentes {
+  margin-bottom: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 0.5rem;
+}
+
+.contrato-existente {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  min-width: 0; /* Permite que el contenido se encoja */
+}
+
+.contrato-existente a {
+  flex: 1;
+  color: #00695C;
+  text-decoration: none;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Estilos específicos para botones dentro de contrato-existente */
+.contrato-existente .btn-view {
+  background: linear-gradient(135deg, #00695C 0%, #004d40 100%);
+  color: #ffffff !important;
+  border: 1px solid #00695C;
+  box-shadow: 0 2px 4px rgba(0, 105, 92, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  padding: 0.38rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.contrato-existente .btn-view::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.contrato-existente .btn-view:hover::after {
+  left: 100%;
+}
+
+.contrato-existente .btn-view:hover {
+  background: linear-gradient(135deg, #004d40 0%, #00251a 100%);
+  border-color: #004d40;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 105, 92, 0.3);
+  text-decoration: none !important;
+  color: #ffffff !important;
+}
+
+.contrato-existente .btn-view:active {
+  background: linear-gradient(135deg, #00251a 0%, #001a13 100%);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 105, 92, 0.4);
+}
+
+.contrato-existente .btn-view:focus-visible {
+  outline: 2px solid #00695C;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(0, 105, 92, 0.1);
+}
+
+.contrato-existente .btn-danger {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #dc2626 !important;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
+  padding: 0.38rem 0.75rem !important;
+  border-radius: 999px !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.contrato-existente .btn-danger::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.contrato-existente .btn-danger:hover::after {
+  left: 100%;
+}
+
+.contrato-existente .btn-danger:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%) !important;
+  border-color: #b91c1c !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+}
+
+.contrato-existente .btn-danger:active {
+  background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%) !important;
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.4) !important;
+}
+
+.contrato-existente .btn-danger:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+}
+
+.contrato-existente a:hover {
+  color: #004d40;
+  text-decoration: underline;
+}
+
+/* Contratos seleccionados */
+.contratos-seleccionados {
+  margin-bottom: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 0.5rem;
+}
+
+.contrato-seleccionado {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f0fdf4;
+  border: 1px solid #10b981;
+  border-radius: 6px;
+  min-width: 0; /* Permite que el contenido se encoja */
+}
+
+.contrato-seleccionado .file-selected-name {
+  flex: 1;
+  color: #065f46;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Input especial para contratos Otrosis */
+.contratos-otrosis-input {
+  border-color: #6b7280;
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+}
+
+.contratos-otrosis-input:hover {
+  border-color: #00695C;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+.contratos-otrosis-input .file-input-text {
+  color: #6b7280;
+}
+
+.contratos-otrosis-input:hover .file-input-text {
+  color: #00695C;
+}
+
+/* Botón pequeño para quitar archivos */
+.btn-sm {
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.75rem !important;
+  border-radius: 6px !important;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #ef4444 !important;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.2) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-weight: 500 !important;
+  min-width: 60px !important;
+}
+
+.btn-sm:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  border-color: #dc2626 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3) !important;
+}
+
+.btn-sm:active {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%) !important;
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4) !important;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .otros-docs-modal {
+    min-width: 700px;
+    max-width: 90vw;
+  }
+  
+  .contratos-existentes,
+  .contratos-seleccionados {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .otros-docs-modal {
+    min-width: 600px;
+    max-width: 95vw;
+    padding: 1rem;
+  }
+  
+  .otros-docs-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .otros-docs-buttons button {
+    width: 200px;
+  }
+}
+
+@media (max-width: 640px) {
+  .otros-docs-modal {
+    min-width: 500px;
+    padding: 0.5rem;
+  }
+  
+  .contrato-existente,
+  .contrato-seleccionado {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .contrato-existente a,
+  .contrato-seleccionado .file-selected-name {
+    width: 100%;
+    white-space: normal;
+    text-overflow: initial;
+    overflow: visible;
+  }
 }
