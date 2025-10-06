@@ -78,11 +78,8 @@ html, body {
   text-overflow: ellipsis;
   text-align: center;
   flex: 1;
-  background: linear-gradient(45deg, #ffffff, #e8f5e8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .user-button {
@@ -127,7 +124,14 @@ html, body {
 }
 
 .user-icon {
-  font-size: 1.2rem;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .arrow-icon {
@@ -246,9 +250,27 @@ html, body {
   position: relative;
 }
 
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: rgba(0, 105, 92, 0.6);
+  z-index: 1;
+  pointer-events: none;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .search-input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
   font-size: 0.95rem;
   border: 2px solid rgba(0, 105, 92, 0.2);
   border-radius: 12px;
@@ -262,6 +284,10 @@ html, body {
   border-color: #00695C;
   box-shadow: 0 0 0 3px rgba(0, 105, 92, 0.1), 0 6px 20px rgba(0, 105, 92, 0.15);
   transform: translateY(-1px);
+}
+
+.search-input-wrapper:focus-within .search-icon {
+  color: #00695C;
 }
 
 /* =======================
@@ -887,7 +913,6 @@ html, body {
   
   .dashboard-title {
     font-size: 1.1rem;
-    text-align: left;
   }
   
   .header-logo {
@@ -1001,7 +1026,6 @@ html, body {
   
   .dashboard-title {
     font-size: 0.9rem;
-    text-align: left;
   }
   
   .header-logo {
