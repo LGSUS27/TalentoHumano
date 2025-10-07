@@ -1,5 +1,5 @@
 /* =======================
-   Reset general
+  Reset general
 ======================= */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -288,7 +288,7 @@ html, body {
 }
 
 /* =======================
-   Tabla de empleados
+  Tabla de empleados
 ======================= */
 .employee-table-container {
   width: 100%;
@@ -467,7 +467,7 @@ html, body {
 }
 
 /* =======================
-   Botones de acciones (estilo)
+  Botones de acciones (estilo)
 ======================= */
 .info-btn,
 .formacion-btn,
@@ -563,7 +563,7 @@ html, body {
 }
 
 /* =======================
-   Modal: Crear empleado
+  Modal: Crear empleado
 ======================= */
 .modal-overlay {
   position: fixed;
@@ -712,7 +712,7 @@ html, body {
 }
 
 /* =======================
-   Modal de confirmación de eliminación
+  Modal de confirmación de eliminación
 ======================= */
 .delete-confirm-modal {
   max-width: 500px;
@@ -739,7 +739,7 @@ html, body {
 }
 
 /* =======================
-   Botones de modal
+  Botones de modal
 ======================= */
 .modal-actions {
   display: flex;
@@ -819,7 +819,133 @@ html, body {
 }
 
 /* =======================
-   Responsivo
+  Modal de confirmación de desvinculación
+======================= */
+.dismiss-confirm-modal {
+  max-width: 500px;
+  text-align: center;
+}
+
+.dismiss-confirm-modal h3 {
+  color: #FF9800;
+  margin-bottom: 1rem;
+}
+
+.dismiss-confirm-modal p {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.dismiss-confirm-modal .warning-text {
+  color: #FF9800;
+  font-weight: 600;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border-left: 4px solid #FF9800;
+  margin-bottom: 1.5rem;
+}
+
+.dismiss-confirm-btn {
+  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.3);
+}
+
+.dismiss-confirm-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
+}
+
+.dismiss-confirm-btn:hover::before {
+  left: 100%;
+}
+
+.dismiss-confirm-btn:hover {
+  background: linear-gradient(135deg, #F57C00 0%, #EF6C00 100%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(255, 152, 0, 0.4);
+}
+
+/* =======================
+  Modal de confirmación de reactivación
+======================= */
+.reactivate-confirm-modal {
+  max-width: 500px;
+  text-align: center;
+}
+
+.reactivate-confirm-modal h3 {
+  color: #4CAF50;
+  margin-bottom: 1rem;
+}
+
+.reactivate-confirm-modal p {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.reactivate-confirm-modal .warning-text {
+  color: #4CAF50;
+  font-weight: 600;
+  background: rgba(76, 175, 80, 0.1);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+  margin-bottom: 1.5rem;
+}
+
+.reactivate-confirm-btn {
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+}
+
+.reactivate-confirm-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
+}
+
+.reactivate-confirm-btn:hover::before {
+  left: 100%;
+}
+
+.reactivate-confirm-btn:hover {
+  background: linear-gradient(135deg, #388E3C 0%, #2E7D32 100%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(76, 175, 80, 0.4);
+}
+
+/* =======================
+  Responsivo
 ======================= */
 
 /* Extra Large screens (1400px+) */
@@ -1317,7 +1443,7 @@ html, body {
 }
 
 /* =======================
-   Controles de vista (Empleados Activos/Desvinculados)
+  Controles de vista (Empleados Activos/Desvinculados)
 ======================= */
 .view-controls {
   display: flex;
@@ -1389,16 +1515,31 @@ html, body {
 }
 
 .employee-count {
-  font-size: 1rem;
-  font-weight: 400;
-  color: #666;
-  background: #f0f0f0;
-  padding: 0.2rem 0.6rem;
-  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #00695C;
+  background: linear-gradient(135deg, #f0f9f8 0%, #e8f5f3 100%);
+  padding: 0.3rem 0.8rem;
+  border-radius: 16px;
+  border: 1px solid #00695C;
+  margin-left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  box-shadow: 0 2px 4px rgba(0, 105, 92, 0.1);
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.employee-count:hover {
+  background: linear-gradient(135deg, #e8f5f3 0%, #d1f2eb 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 105, 92, 0.15);
 }
 
 /* =======================
-   Botón de cambio de estado
+  Botón de cambio de estado
 ======================= */
 .status-toggle-btn {
   display: flex;

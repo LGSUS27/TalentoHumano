@@ -167,12 +167,20 @@ const Experiencia = ({ empleado, onClose }) => {
 
   const handleEdit = (exp) => {
     setEditingExp(exp);
+    
+    // Formatear fechas para input type="date"
+    const formatDateForInput = (dateString) => {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    };
+    
     setFormData({
       empresa: exp.empresa,
       cargo: exp.cargo,
       tipoVinculacion: exp.tipo_vinculacion,
-      fechaInicio: exp.fecha_inicio,
-      fechaFin: exp.fecha_salida,
+      fechaInicio: formatDateForInput(exp.fecha_inicio),
+      fechaFin: formatDateForInput(exp.fecha_salida),
       funciones: exp.funciones,
       archivo: null, // No pre-cargar archivo existente
     });
@@ -225,8 +233,8 @@ const Experiencia = ({ empleado, onClose }) => {
       });
 
       // Actualizar la lista de experiencias
-      const updatedExperiencias = experiencias.map(exp => 
-        exp.id === editingExp.id 
+      const updatedExperiencias = experiencias.map(exp =>
+        exp.id === editingExp.id
           ? { ...res.data, archivoURL: res.data.soporte ? `${API_URL}/uploads/${res.data.soporte}` : exp.archivoURL }
           : exp
       );

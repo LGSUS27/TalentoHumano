@@ -229,12 +229,15 @@ const InformacionPersonal = ({ empleado, onClose }) => {
       
       // Crear preview de la imagen
       if (selectedFile) {
+        console.log("Archivo seleccionado:", selectedFile.name);
         const reader = new FileReader();
         reader.onload = (e) => {
+          console.log("Preview generado para:", selectedFile.name);
           setImagePreview(e.target.result);
         };
         reader.readAsDataURL(selectedFile);
       } else {
+        console.log("No hay archivo seleccionado, limpiando preview");
         setImagePreview(null);
       }
     } else if (type !== "file") {
@@ -470,6 +473,14 @@ const InformacionPersonal = ({ empleado, onClose }) => {
       imagenPersonal: null,
     }));
     setImagePreview(null);
+    
+    // Limpiar el input de archivo del DOM
+    setTimeout(() => {
+      const fileInput = document.querySelector('input[name="imagenPersonal"]');
+      if (fileInput) {
+        fileInput.value = '';
+      }
+    }, 0);
   };
 
   const handleCancelReplaceImage = (e) => {
@@ -701,95 +712,94 @@ const InformacionPersonal = ({ empleado, onClose }) => {
 
         {/* Sección de PDF separada del formulario */}
         <div className="pdf-section">
-          <label>
-            Documento de identificación (PDF):
-            
-            {/* Mostrar PDF existente solo si hay datos iniciales cargados */}
-            {hasInitialData && existingPdf && !showReplacePdf && (
-              <div className="existing-pdf-section">
-                <div className="pdf-info">
-                  <span className="pdf-name">
-                    <svg className="pdf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14,2 14,8 20,8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/>
-                      <line x1="16" y1="17" x2="8" y2="17"/>
-                      <polyline points="10,9 9,9 8,9"/>
-                    </svg>
-                    {existingPdf}
-                  </span>
-                  <div className="pdf-actions">
-                    <a
-                      href={`http://localhost:3000/uploads/${existingPdf}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="view-pdf-btn"
-                    >
-                      Ver PDF
-                    </a>
-                    <button
-                      type="button"
-                      onClick={handleReplacePdf}
-                      className="replace-pdf-btn"
-                    >
-                      Reemplazar
-                    </button>
-                  </div>
+          <label htmlFor="documentoPdf">Documento de identificación (PDF):</label>
+          
+          {/* Mostrar PDF existente solo si hay datos iniciales cargados */}
+          {hasInitialData && existingPdf && !showReplacePdf && (
+            <div className="existing-pdf-section">
+              <div className="pdf-info">
+                <span className="pdf-name">
+                  <svg className="pdf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                  </svg>
+                  {existingPdf}
+                </span>
+                <div className="pdf-actions">
+                  <a
+                    href={`http://localhost:3000/uploads/${existingPdf}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="view-pdf-btn"
+                  >
+                    Ver PDF
+                  </a>
+                  <button
+                    type="button"
+                    onClick={handleReplacePdf}
+                    className="replace-pdf-btn"
+                  >
+                    Reemplazar
+                  </button>
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Mostrar input de archivo cuando no hay PDF existente o se está reemplazando */}
-            {hasInitialData && (!existingPdf || showReplacePdf) && (
-              <div className="pdf-upload-section">
-                <div className={`file-input-wrapper ${formData.documentoPdf ? 'has-file' : ''}`}>
-                  <input
-                    type="file"
-                    name="documentoPdf"
-                    accept="application/pdf"
-                    onChange={handleChange}
-                    required={!existingPdf}
-                  />
-                  <div className="file-input-content">
-                    <svg className="file-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14,2 14,8 20,8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/>
-                      <line x1="16" y1="17" x2="8" y2="17"/>
-                      <polyline points="10,9 9,9 8,9"/>
-                    </svg>
-                    <p className="file-input-text">
-                      {formData.documentoPdf ? 'Archivo seleccionado' : 'Seleccionar documento PDF'}
-                    </p>
-                    <p className="file-input-hint">Haz clic para seleccionar o arrastra el archivo aquí</p>
-                  </div>
+          {/* Mostrar input de archivo cuando no hay PDF existente o se está reemplazando */}
+          {hasInitialData && (!existingPdf || showReplacePdf) && (
+            <div className="pdf-upload-section">
+              <div className={`file-input-wrapper ${formData.documentoPdf ? 'has-file' : ''}`}>
+                <input
+                  id="documentoPdf"
+                  type="file"
+                  name="documentoPdf"
+                  accept="application/pdf"
+                  onChange={handleChange}
+                  required={!existingPdf}
+                />
+                <div className="file-input-content">
+                  <svg className="file-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                  </svg>
+                  <p className="file-input-text">
+                    {formData.documentoPdf ? 'Archivo seleccionado' : 'Seleccionar documento PDF'}
+                  </p>
+                  <p className="file-input-hint">Haz clic para seleccionar o arrastra el archivo aquí</p>
                 </div>
-                {formData.documentoPdf && (
-                  <div className="file-selected">
-                    <svg className="file-selected-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14,2 14,8 20,8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/>
-                      <line x1="16" y1="17" x2="8" y2="17"/>
-                      <polyline points="10,9 9,9 8,9"/>
-                    </svg>
-                    <span className="file-selected-name">{formData.documentoPdf.name}</span>
-                  </div>
-                )}
-                {showReplacePdf && (
-                  <div className="replace-actions">
-                    <button
-                      type="button"
-                      onClick={handleCancelReplace}
-                      className="cancel-replace-btn"
-                    >
-                      Cancelar reemplazo
-                    </button>
-                  </div>
-                )}
               </div>
-            )}
-          </label>
+              {formData.documentoPdf && (
+                <div className="file-selected">
+                  <svg className="file-selected-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                  </svg>
+                  <span className="file-selected-name">{formData.documentoPdf.name}</span>
+                </div>
+              )}
+              {showReplacePdf && (
+                <div className="replace-actions">
+                  <button
+                    type="button"
+                    onClick={handleCancelReplace}
+                    className="cancel-replace-btn"
+                  >
+                    Cancelar reemplazo
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Sección de Imagen Personal */}
@@ -836,6 +846,11 @@ const InformacionPersonal = ({ empleado, onClose }) => {
                         <circle cx="12" cy="13" r="4"/>
                       </svg>
                       <p>Selecciona una imagen</p>
+                      {formData.imagenPersonal && (
+                        <p style={{fontSize: '12px', color: '#666', marginTop: '8px'}}>
+                          Archivo seleccionado: {formData.imagenPersonal.name}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -855,6 +870,9 @@ const InformacionPersonal = ({ empleado, onClose }) => {
                       {formData.imagenPersonal ? 'Imagen seleccionada' : 'Seleccionar imagen personal'}
                     </p>
                     <p className="file-input-hint">Haz clic para seleccionar o arrastra la imagen aquí</p>
+                    <p className="file-input-hint" style={{fontSize: '11px', color: '#9ca3af', marginTop: '2px'}}>
+                      Dimensiones recomendadas: 400x500px (300 DPI)
+                    </p>
                   </div>
                 </div>
                 {formData.imagenPersonal && (

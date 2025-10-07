@@ -19,6 +19,8 @@ const Dashboard = () => {
   const [showOtrosDocumentosModal, setShowOtrosDocumentosModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDismissConfirm, setShowDismissConfirm] = useState(false);
+  const [showReactivateConfirm, setShowReactivateConfirm] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showDismissedEmployees, setShowDismissedEmployees] = useState(false);
@@ -161,13 +163,21 @@ const Dashboard = () => {
 
   const openEditModal = (employee) => {
     setSelectedEmployee(employee);
+    
+    // Formatear fechas para input type="date"
+    const formatDateForInput = (dateString) => {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    };
+    
     // Pre-llenar el formulario con los datos del empleado
     setFormData({
       nombre: employee.nombre || "",
       numeroIdentificacion: employee.numeroidentificacion || "",
       contrato: employee.contrato || "",
-      fecha_inicio: employee.fecha_inicio || "",
-      fecha_fin: employee.fecha_fin || "",
+      fecha_inicio: formatDateForInput(employee.fecha_inicio),
+      fecha_fin: formatDateForInput(employee.fecha_fin),
       sueldo: employee.sueldo || "",
       tipo_contrato: employee.tipo_contrato || "",
       cargo: employee.cargo || "",
@@ -196,6 +206,24 @@ const Dashboard = () => {
   };
   const closeDeleteConfirm = () => {
     setShowDeleteConfirm(false);
+    setSelectedEmployee(null);
+  };
+
+  const openDismissConfirm = (employee) => {
+    setSelectedEmployee(employee);
+    setShowDismissConfirm(true);
+  };
+  const closeDismissConfirm = () => {
+    setShowDismissConfirm(false);
+    setSelectedEmployee(null);
+  };
+
+  const openReactivateConfirm = (employee) => {
+    setSelectedEmployee(employee);
+    setShowReactivateConfirm(true);
+  };
+  const closeReactivateConfirm = () => {
+    setShowReactivateConfirm(false);
     setSelectedEmployee(null);
   };
 
@@ -472,6 +500,21 @@ const Dashboard = () => {
     const currentStatus = employee.estado || 'activo';
     const newStatus = currentStatus === 'activo' ? 'desvinculado' : 'activo';
     
+    console.log('Cambiando estado del empleado:', {
+      employeeId: employee.id,
+      employeeName: employee.nombre,
+      currentStatus,
+      newStatus,
+      token: token ? 'Presente' : 'Ausente',
+      tokenLength: token ? token.length : 0,
+      API
+    });
+
+    if (!token) {
+      showError("No se encontró token de autenticación. Por favor, inicia sesión nuevamente.");
+      return;
+    }
+    
     try {
       const response = await fetch(`${API}/empleados/${employee.id}/estado`, {
         method: "PATCH",
@@ -482,19 +525,33 @@ const Dashboard = () => {
         body: JSON.stringify({ estado: newStatus }),
       });
 
+      console.log('Respuesta del servidor:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
       if (response.ok) {
         const result = await response.json();
         
-        setEmployees((prev) => 
-          prev.map((emp) => 
+        setEmployees((prev) =>
+          prev.map((emp) =>
             emp.id === employee.id ? { ...emp, estado: newStatus } : emp
           )
         );
         
-        const message = newStatus === 'activo' 
-          ? 'Empleado reactivado exitosamente' 
+        const message = newStatus === 'activo'
+          ? 'Empleado reactivado exitosamente'
           : 'Empleado desvinculado exitosamente';
         showSuccess(message);
+        
+        // Cerrar el modal de confirmación si está abierto
+        if (showDismissConfirm) {
+          closeDismissConfirm();
+        }
+        if (showReactivateConfirm) {
+          closeReactivateConfirm();
+        }
       } else {
         let errorMessage = "Error al cambiar estado del empleado";
         try {
@@ -613,7 +670,7 @@ const Dashboard = () => {
           <div className="table-header">
             <h3 className="table-title">
               {showDismissedEmployees ? 'Empleados Desvinculados' : 'Empleados Activos'}
-              <span className="employee-count">({filteredEmployees.length})</span>
+              <span className="employee-count">{filteredEmployees.length}</span>
             </h3>
           </div>
           <div className="employee-table-wrapper">
@@ -687,9 +744,9 @@ const Dashboard = () => {
                         </svg>
                         <span>Editar</span>
                       </button>
-                      <button 
+                      <button
                         className={`status-toggle-btn ${(emp.estado || 'activo') === 'desvinculado' ? 'reactivate' : 'dismiss'}`}
-                        onClick={() => handleToggleEmployeeStatus(emp)} 
+                        onClick={() => (emp.estado || 'activo') === 'desvinculado' ? openReactivateConfirm(emp) : openDismissConfirm(emp)}
                         title={(emp.estado || 'activo') === 'desvinculado' ? 'Reactivar Empleado' : 'Desvincular Empleado'}
                       >
                         <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1097,6 +1154,53 @@ const Dashboard = () => {
               </button>
               <button type="button" className="delete-confirm-btn" onClick={handleDeleteEmployee}>
                 Eliminar empleado
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación de desvinculación */}
+      {showDismissConfirm && selectedEmployee && (
+        <div className="modal-overlay" onClick={closeDismissConfirm}>
+          <div className="modal-content dismiss-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Confirmar desvinculación</h3>
+            <p>
+              ¿Estás seguro de que deseas desvincular al empleado <strong>{selectedEmployee.nombre}</strong>?
+            </p>
+            <p className="warning-text">
+              El empleado será marcado como desvinculado pero sus datos se mantendrán en el sistema.
+              Podrás reactivarlo en cualquier momento.
+            </p>
+            <div className="modal-actions">
+              <button type="button" className="cancel-btn" onClick={closeDismissConfirm}>
+                Cancelar
+              </button>
+                <button type="button" className="dismiss-confirm-btn" onClick={() => handleToggleEmployeeStatus(selectedEmployee)}>
+                  Desvincular empleado
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación de reactivación */}
+      {showReactivateConfirm && selectedEmployee && (
+        <div className="modal-overlay" onClick={closeReactivateConfirm}>
+          <div className="modal-content reactivate-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Confirmar reactivación</h3>
+            <p>
+              ¿Estás seguro de que deseas reactivar al empleado <strong>{selectedEmployee.nombre}</strong>?
+            </p>
+            <p className="warning-text">
+              El empleado será marcado como activo nuevamente y podrá acceder a todos los servicios.
+            </p>
+            <div className="modal-actions">
+              <button type="button" className="cancel-btn" onClick={closeReactivateConfirm}>
+                Cancelar
+              </button>
+              <button type="button" className="reactivate-confirm-btn" onClick={() => handleToggleEmployeeStatus(selectedEmployee)}>
+                Reactivar empleado
               </button>
             </div>
           </div>

@@ -14,13 +14,13 @@
 /* ---------- Contenedor del modal ---------- */
 .modal-content {
   background: #fff;
-  padding: 1.5rem;
+  padding: 2rem;
   border-radius: 10px;
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px;
   max-height: 90vh;           /* para que no crezca infinito */
   overflow-y: auto;           /* scroll interno si hace falta */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
   margin: 20px;               /* margen para que no toque los bordes */
 }
@@ -30,6 +30,7 @@
   margin-bottom: 1.25rem;
   font-size: 1.5rem;
   font-weight: bold;
+  color: #00695C;
 }
 
 /* ---------- Formulario en 2 columnas ---------- */
@@ -79,7 +80,7 @@
 /* Contenedor personalizado para el input de archivo */
 .file-input-wrapper {
   position: relative;
-  display: inline-block;
+  display: block;
   width: 100%;
   min-height: 48px;
   border: 2px dashed #00695C;
@@ -114,6 +115,8 @@
   cursor: pointer;
   z-index: 2;
 }
+
+
 
 /* Contenido del wrapper */
 .file-input-content {
@@ -265,6 +268,10 @@
   padding-bottom: 0.75rem;
   border-top: 1px solid #e9ecef;
   border-bottom: 1px solid #e9ecef;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .pdf-section label {
@@ -273,6 +280,7 @@
   font-weight: 600;
   font-size: 0.95rem;
   gap: 0.35rem;
+  width: 100%;
 }
 
 .existing-pdf-section {
@@ -288,6 +296,7 @@
   border: 1px solid #e9ecef;
   border-radius: 6px;
   gap: 1rem;
+  width: 100%;
 }
 
 .pdf-name {
@@ -367,6 +376,13 @@
 
 .pdf-upload-section {
   margin-top: 0.5rem;
+  width: 100%;
+}
+
+
+.existing-pdf-section {
+  margin-top: 0.5rem;
+  width: 100%;
 }
 
 .replace-actions {
@@ -421,8 +437,8 @@
 }
 
 .image-preview-container {
-  width: 300px;               /* Reducir ancho */
-  height: 350px;              /* Reducir altura */
+  width: 400px;               /* Ancho 400px */
+  height: 500px;              /* Alto 500px */
   border: 2px solid #e9ecef;
   border-radius: 8px;
   display: flex;
@@ -514,27 +530,19 @@
   gap: 1rem;
 }
 
-.image-input {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  background-color: white;
-  cursor: pointer;
-  width: 200px;
+.image-upload-section .file-input-wrapper {
+  width: 400px;
+  max-width: 100%;
 }
 
-.image-input:hover {
-  border-color: #00695C;
-}
-
-.image-input:focus {
-  outline: none;
-  border-color: #00695C;
-  box-shadow: 0 0 0 3px rgba(71, 126, 120, 0.15);
-}
 
 /* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+  .modal-content {
+    max-width: 95vw;
+  }
+}
+
 @media (max-width: 768px) {
   .modal-overlay {
     padding: 10px;            /* Reducir padding en móviles */
@@ -543,11 +551,12 @@
   .modal-content {
     margin: 10px;             /* Reducir margen en móviles */
     padding: 1rem;            /* Reducir padding en móviles */
+    max-width: 95vw;
     max-height: 95vh;         /* Más altura en móviles */
   }
   
-  .info-form { 
-    grid-template-columns: 1fr; 
+  .info-form {
+    grid-template-columns: 1fr;
     gap: 0.5rem;             /* Reducir gap en móviles */
   }
   
@@ -568,22 +577,33 @@
   
   .image-preview-container {
     width: 100%;
-    max-width: 300px;
-    height: 300px;            /* Reducir altura en móviles */
+    max-width: 400px;
+    height: 400px;            /* Ajustar altura en móviles manteniendo proporción */
+  }
+  
+  .image-upload-section .file-input-wrapper {
+    width: 100%;
+    max-width: 400px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .modal-overlay {
     padding: 5px;             /* Mínimo padding en pantallas muy pequeñas */
   }
   
   .modal-content {
     margin: 5px;              /* Mínimo margen en pantallas muy pequeñas */
-    padding: 0.75rem;         /* Mínimo padding en pantallas muy pequeñas */
+    padding: 0.5rem;          /* Mínimo padding en pantallas muy pequeñas */
+    max-width: 95vw;
   }
   
   .image-preview-container {
-    height: 250px;            /* Aún más pequeño en pantallas muy pequeñas */
+    height: 350px;            /* Ajustar para pantallas muy pequeñas */
+  }
+  
+  .image-upload-section .file-input-wrapper {
+    width: 100%;
+    max-width: 350px;
   }
 }

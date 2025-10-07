@@ -9,12 +9,13 @@
 /* Contenedor del modal */
 .experiencia-container{
   background: #fff;
-  padding: 16px 18px;
-  border-radius: 14px;
-  width: min(760px, 92vw);      /* más angosto */
-  max-height: 86vh;             /* limita alto */
+  padding: 2rem;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 1000px;
+  max-height: 90vh;             /* limita alto */
   overflow: auto;               /* scroll interno */
-  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   position: relative; z-index: 10000;
 }
 
@@ -22,6 +23,7 @@
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 .75rem;
+  color: #00695C;
 }
 
 /* Form: 2 columnas en desktop */
@@ -209,8 +211,19 @@
 }
 
 /* Responsive: 1 columna en móviles */
+@media (max-width: 768px) {
+  .experiencia-container {
+    max-width: 95vw;
+    padding: 1rem;
+  }
+}
+
 @media (max-width: 640px){
   .experiencia-form{ grid-template-columns: 1fr; }
+  .experiencia-container {
+    max-width: 95vw;
+    padding: 0.5rem;
+  }
 }
 
 /* =======================

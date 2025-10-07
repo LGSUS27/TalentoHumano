@@ -234,7 +234,7 @@ const OtrosDocumentos = ({ empleado, onClose }) => {
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="otros-docs-modal" onClick={(e) => e.stopPropagation()}>
-        <h2>Otros Documentos — {empleado?.nombres} {empleado?.apellidos}</h2>
+        <h2>Otros Documentos — {empleado?.nombre}</h2>
 
         {loading ? (
           <p>Cargando…</p>

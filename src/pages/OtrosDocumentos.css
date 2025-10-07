@@ -13,11 +13,10 @@
   padding: 2rem;
   border-radius: 10px;
   width: 100%;
-  min-width: 800px;
-  max-width: 95vw;
+  max-width: 1000px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   overflow-y: auto;
-  max-height: 95vh;
+  max-height: 90vh;
   margin: 0 auto;
 }
 
@@ -210,10 +209,12 @@
 .otros-docs-buttons {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 1rem;
   margin-top: 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid #e5e7eb;
+  width: 100%;
 }
 
 .otros-docs-buttons button {
@@ -224,9 +225,12 @@
   cursor: pointer !important;
   font-weight: bold !important;
   transition: all 0.3s ease !important;
-  margin-top: 0 !important;
-  display: inline-block !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
   justify-content: center !important;
+  min-width: 120px !important;
+  width: auto !important;
 }
 
 .otros-docs-modal .guardar-btn {
@@ -657,8 +661,7 @@
 /* Responsive design */
 @media (max-width: 1024px) {
   .otros-docs-modal {
-    min-width: 700px;
-    max-width: 90vw;
+    max-width: 95vw;
   }
   
   .contratos-existentes,
@@ -669,7 +672,6 @@
 
 @media (max-width: 768px) {
   .otros-docs-modal {
-    min-width: 600px;
     max-width: 95vw;
     padding: 1rem;
   }
@@ -686,7 +688,7 @@
 
 @media (max-width: 640px) {
   .otros-docs-modal {
-    min-width: 500px;
+    max-width: 95vw;
     padding: 0.5rem;
   }
   

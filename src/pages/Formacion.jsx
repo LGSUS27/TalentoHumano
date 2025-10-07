@@ -193,13 +193,21 @@ const Formacion = ({ empleado, onClose }) => {
 
   const handleEdit = (form) => {
     setEditingForm(form);
+    
+    // Formatear fechas para input type="date"
+    const formatDateForInput = (dateString) => {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    };
+    
     setFormData({
       institucion: form.institucion,
       programa: form.programa,
       tipo: form.tipo,
       nivel: form.nivel,
       graduado: form.graduado,
-      fecha: form.fecha,
+      fecha: formatDateForInput(form.fecha),
       archivo: null, // No pre-cargar archivo existente
     });
   };
@@ -331,7 +339,7 @@ const Formacion = ({ empleado, onClose }) => {
               <label htmlFor="fecha">Fecha de terminación *</label>
               <input type="date" name="fecha" value={formData.fecha} onChange={handleChange} required />
             </div>
-            <div className="form-group">
+            <div className="form-group full">
               <label htmlFor="archivo">Documento PDF *</label>
               <div className={`file-input-wrapper ${formData.archivo ? 'has-file' : ''}`}>
                 <input type="file" name="archivo" accept="application/pdf" onChange={handleChange} required />
