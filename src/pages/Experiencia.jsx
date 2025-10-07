@@ -9,7 +9,7 @@ const Experiencia = ({ empleado, onClose }) => {
   const [formData, setFormData] = useState({
     empresa: "",
     cargo: "",
-    tipoVinculacion: "",
+    tipoVinculacion: "Seleccionar tipo de vinculación...",
     fechaInicio: "",
     fechaFin: "",
     funciones: "",
@@ -81,7 +81,7 @@ const Experiencia = ({ empleado, onClose }) => {
       return;
     }
 
-    if (!formData.tipoVinculacion || formData.tipoVinculacion.trim() === "") {
+    if (!formData.tipoVinculacion || formData.tipoVinculacion === "" || formData.tipoVinculacion === "Seleccionar tipo de vinculación...") {
       showError("El tipo de vinculación es obligatorio");
       return;
     }
@@ -152,7 +152,7 @@ const Experiencia = ({ empleado, onClose }) => {
       const nueva = { ...res.data, archivoURL: `${API_URL}/uploads/${res.data.soporte}` };
       setExperiencias((prev) => [nueva, ...prev]);
       setFormData({
-        empresa: "", cargo: "", tipoVinculacion: "",
+        empresa: "", cargo: "", tipoVinculacion: "Seleccionar tipo de vinculación...",
         fechaInicio: "", fechaFin: "", funciones: "", archivo: null,
       });
     } catch (err) {
@@ -178,7 +178,7 @@ const Experiencia = ({ empleado, onClose }) => {
     setFormData({
       empresa: exp.empresa,
       cargo: exp.cargo,
-      tipoVinculacion: exp.tipo_vinculacion,
+      tipoVinculacion: exp.tipo_vinculacion || "Seleccionar tipo de vinculación...",
       fechaInicio: formatDateForInput(exp.fecha_inicio),
       fechaFin: formatDateForInput(exp.fecha_salida),
       funciones: exp.funciones,
@@ -191,7 +191,7 @@ const Experiencia = ({ empleado, onClose }) => {
     setFormData({
       empresa: "",
       cargo: "",
-      tipoVinculacion: "",
+      tipoVinculacion: "Seleccionar tipo de vinculación...",
       fechaInicio: "",
       fechaFin: "",
       funciones: "",
@@ -293,16 +293,20 @@ const Experiencia = ({ empleado, onClose }) => {
 
             <div className="form-group">
               <label htmlFor="tipoVinculacion">Tipo de vinculación *</label>
-              <input
+              <select
                 id="tipoVinculacion"
                 name="tipoVinculacion"
                 value={formData.tipoVinculacion}
                 onChange={handleChange}
-                placeholder="Tipo de vinculación laboral"
                 required
                 aria-describedby="tipoVinculacion-error"
                 aria-invalid={!formData.tipoVinculacion && formData.tipoVinculacion !== ''}
-              />
+              >
+                <option value="Seleccionar tipo de vinculación..." disabled>Seleccionar tipo de vinculación...</option>
+                <option value="Contrato a término fijo">Contrato a término fijo</option>
+                <option value="Contrato a término indefinido">Contrato a término indefinido</option>
+                <option value="Contrato prestación de servicios">Contrato prestación de servicios</option>
+              </select>
               <div id="tipoVinculacion-error" className="error-message" role="alert" aria-live="polite"></div>
             </div>
 
