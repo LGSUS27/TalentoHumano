@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import AlertContainer from "../components/AlertContainer";
-import useAlert from "../hooks/useAlert";
+import AlertContainer from "../shared/components/AlertContainer";
+import useAlert from "../shared/hooks/useAlert";
 import "./InformacionPersonal.css";
 
-const InformacionPersonal = ({ empleado, onClose }) => {
+const InformacionPersonal = ({ empleado, onClose, embedded = false }) => {
   const [formData, setFormData] = useState({
     tipoDocumento: "Seleccionar tipo de documento...",
     numeroIdentificacion: "",
@@ -517,8 +517,8 @@ const InformacionPersonal = ({ empleado, onClose }) => {
   }
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className={`modal-overlay ${embedded ? 'embedded-mode' : ''}`} onClick={handleOverlayClick}>
+      <div className={`modal-content ${embedded ? 'embedded-mode' : ''}`} onClick={(e) => e.stopPropagation()}>
         <h3>Información Personal - {empleado?.nombre}</h3>
 
         <form className="info-form" onSubmit={handleSubmit} encType="multipart/form-data">
@@ -528,6 +528,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="tipoDocumento"
               value={formData.tipoDocumento}
               onChange={handleChange}
+              disabled={submitting}
               required
             >
               <option value="Seleccionar tipo de documento..." disabled>Seleccionar tipo de documento...</option>
@@ -544,6 +545,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="numeroIdentificacion"
               value={formData.numeroIdentificacion}
               onChange={handleChange}
+              disabled={submitting}
               pattern="[0-9]{6,12}"
               title="Solo números, entre 6 y 12 dígitos"
               onKeyDown={(e) => {
@@ -562,6 +564,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="fechaExpedicion"
               value={formData.fechaExpedicion}
               onChange={handleChange}
+              disabled={submitting}
               required
             />
           </label>
@@ -573,6 +576,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="nombres"
               value={formData.nombres}
               onChange={handleChange}
+              disabled={submitting}
               onKeyDown={handleKeyDown}
               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
               title="Solo letras y espacios"
@@ -587,6 +591,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="apellidos"
               value={formData.apellidos}
               onChange={handleChange}
+              disabled={submitting}
               onKeyDown={handleKeyDown}
               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
               title="Solo letras y espacios"
@@ -600,6 +605,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="genero"
               value={formData.genero}
               onChange={handleChange}
+              disabled={submitting}
               required
             >
               <option value="Seleccionar género..." disabled>Seleccionar género...</option>
@@ -616,6 +622,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="fechaNacimiento"
               value={formData.fechaNacimiento}
               onChange={handleChange}
+              disabled={submitting}
               required
             />
           </label>
@@ -626,6 +633,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="departamentoNacimiento"
               value={formData.departamentoNacimiento}
               onChange={handleChange}
+              disabled={submitting}
               required
             >
               {departamentos.map((departamento, index) => (
@@ -642,6 +650,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="ciudadNacimiento"
               value={formData.ciudadNacimiento}
               onChange={handleChange}
+              disabled={submitting}
               required
             >
               {ciudades.map((ciudad, index) => (
@@ -660,6 +669,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              disabled={submitting}
               placeholder="correo@dominio.com"
               title="Formato de email válido"
             />
@@ -672,6 +682,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="direccion"
               value={formData.direccion}
               onChange={handleChange}
+              disabled={submitting}
               placeholder="Calle 12 #34-56, Barrio"
             />
           </label>
@@ -683,6 +694,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
               name="telefono"
               value={formData.telefono}
               onChange={handleChange}
+              disabled={submitting}
               placeholder="3001234567"
               pattern="[0-9]{7,15}"
               title="Solo números, entre 7 y 15 dígitos"
@@ -696,7 +708,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
 
           <label>
             RH:
-            <select name="rh" value={formData.rh} onChange={handleChange}>
+            <select name="rh" value={formData.rh} onChange={handleChange} disabled={submitting}>
               <option value="Seleccionar RH..." disabled>Seleccionar RH...</option>
               <option value="O+">O+</option>
               <option value="O-">O-</option>
@@ -759,6 +771,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
                   name="documentoPdf"
                   accept="application/pdf"
                   onChange={handleChange}
+                  disabled={submitting}
                   required={!existingPdf}
                 />
                 <div className="file-input-content">
@@ -860,6 +873,7 @@ const InformacionPersonal = ({ empleado, onClose }) => {
                     name="imagenPersonal"
                     accept="image/*"
                     onChange={handleChange}
+                    disabled={submitting}
                   />
                   <div className="file-input-content">
                     <svg className="file-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

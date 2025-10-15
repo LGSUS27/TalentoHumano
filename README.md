@@ -218,21 +218,34 @@ SELECT version();
 
 ## Arquitectura del Sistema
 
+### 🏗️ Arquitectura Modular (Vertical Slices)
+
+Este proyecto utiliza una **arquitectura modular** donde el código se organiza por características de negocio en lugar de por capas técnicas.
+
+**Ventajas:**
+- ✅ Alta cohesión: Todo relacionado con una característica está junto
+- ✅ Bajo acoplamiento: Módulos independientes
+- ✅ Fácil mantenimiento y escalabilidad
+- ✅ Preparado para microservicios
+
+Ver documentación completa en [ARCHITECTURE.md](./ARCHITECTURE.md)
+
 ### Frontend (React + Vite)
 - **Framework**: React 18 con hooks modernos
 - **Build Tool**: Vite para desarrollo rápido
 - **Routing**: React Router DOM para navegación SPA
-- **HTTP Client**: Axios para comunicación con API
+- **HTTP Client**: Axios con interceptors centralizados
 - **Estado**: Estado local con useState y useEffect
-- **UI Components**: Componentes personalizados con CSS modules
+- **Arquitectura**: Servicios API centralizados + componentes compartidos
 
 ### Backend (Node.js + Express)
 - **Framework**: Express.js con ES6 modules
-- **Base de Datos**: PostgreSQL con cliente pg
-- **Autenticación**: JWT con jsonwebtoken
-- **File Upload**: Multer para manejo de archivos PDF
-- **CORS**: Configuración específica para desarrollo
-- **Middleware**: Validación y autenticación personalizada
+- **Arquitectura**: Modular (Controllers → Services → Models)
+- **Base de Datos**: PostgreSQL con cliente pg y connection pooling
+- **Autenticación**: JWT con middleware centralizado
+- **File Upload**: Multer con configuración modular
+- **Error Handling**: Middleware global de errores
+- **Logging**: Logger personalizado para desarrollo
 
 ### Base de Datos (PostgreSQL)
 - **Motor**: PostgreSQL 16+
@@ -240,88 +253,112 @@ SELECT version();
 - **Índices**: Optimización de consultas frecuentes
 - **Tipos de Datos**: Tipos específicos (SERIAL, DECIMAL, BOOLEAN, etc.)
 
-## 📁 Estructura del Proyecto
+## 📁 Estructura del Proyecto (Arquitectura Modular)
 
 ```
 recursosHumanos2025-main/
-├── backend/                          # Servidor Express.js
-│   ├── routes/                       # Rutas modulares de la API
-│   │   ├── empleados.js              # CRUD completo de empleados con validaciones
-│   │   ├── empleados_backup.js       # Backup del archivo de empleados
-│   │   ├── informacionPersonal.js    # Gestión de información personal
-│   │   ├── experiencia.js            # Gestión de experiencia laboral
-│   │   ├── formacion.js              # Gestión de formación académica
-│   │   └── otrosDocumentos.js        # Gestión de otros documentos
-│   ├── uploads/                      # Directorio de archivos subidos
-│   │   ├── .gitkeep                  # Archivo para mantener directorio en Git
-│   │   └── otros-documentos/         # Subcarpeta para documentos adicionales
-│   ├── node_modules/                 # Dependencias del backend
-│   ├── db.js                         # Configuración de conexión PostgreSQL
-│   ├── index.js                      # Servidor principal con CORS y middleware
-│   ├── package.json                  # Dependencias y scripts del backend
-│   ├── package-lock.json             # Lock file de dependencias
-│   └── .env                          # Variables de entorno (crear manualmente)
+├── backend/                          # Backend con Arquitectura Modular
+│   ├── src/
+│   │   ├── modules/                  # 🔥 Módulos por dominio (Vertical Slices)
+│   │   │   ├── auth/                 # Módulo de autenticación
+│   │   │   │   ├── controllers/
+│   │   │   │   ├── services/
+│   │   │   │   ├── middlewares/
+│   │   │   │   └── routes/
+│   │   │   ├── empleados/            # Módulo de empleados
+│   │   │   │   ├── controllers/
+│   │   │   │   ├── services/
+│   │   │   │   ├── validators/
+│   │   │   │   ├── models/
+│   │   │   │   └── routes/
+│   │   │   ├── informacion-personal/ # Módulo información personal
+│   │   │   ├── formacion/            # Módulo formación académica
+│   │   │   ├── experiencia/          # Módulo experiencia laboral
+│   │   │   └── otros-documentos/     # Módulo otros documentos
+│   │   │
+│   │   ├── shared/                   # 🔥 Recursos compartidos
+│   │   │   ├── config/               # Configuraciones (BD, env)
+│   │   │   ├── middlewares/          # Middlewares globales (auth, CORS, errors)
+│   │   │   ├── utils/                # Utilidades (logger, response, multer)
+│   │   │   └── constants/            # Constantes (HTTP codes, mensajes)
+│   │   │
+│   │   ├── app.js                    # Configuración de Express
+│   │   └── server.js                 # Servidor con manejo de señales
+│   │
+│   ├── uploads/                      # Archivos subidos
+│   ├── routes/                       # [LEGACY] Rutas antiguas (deprecated)
+│   ├── index.js                      # Punto de entrada principal
+│   └── package.json
+│
 ├── src/                              # Frontend React
-│   ├── components/                   # Componentes reutilizables
-│   │   ├── Login.jsx                 # Componente de autenticación con validaciones
-│   │   ├── Login.css                 # Estilos del componente Login
-│   │   ├── ProtectedRoute.jsx        # Componente de protección de rutas
-│   │   ├── Protected.jsx             # Componente wrapper protegido
-│   │   ├── Alert.jsx                 # Sistema de alertas con iconos SVG
-│   │   ├── Alert.css                 # Estilos del sistema de alertas
-│   │   ├── AlertContainer.jsx        # Contenedor de alertas
-│   │   ├── ConfirmDialog.jsx         # Diálogos de confirmación personalizados
-│   │   └── ConfirmDialog.css         # Estilos de diálogos de confirmación
-│   ├── pages/                        # Páginas principales de la aplicación
-│   │   ├── Dashboard.jsx             # Dashboard principal con tabla fija y búsqueda
-│   │   ├── Dashboard.css             # Estilos del dashboard
-│   │   ├── InformacionPersonal.jsx   # Gestión de información personal
-│   │   ├── InformacionPersonal.css   # Estilos de información personal
-│   │   ├── Formacion.jsx             # Gestión de formación académica
-│   │   ├── Formacion.css             # Estilos de formación
-│   │   ├── Experiencia.jsx           # Gestión de experiencia laboral
-│   │   ├── Experiencia.css           # Estilos de experiencia
-│   │   ├── OtrosDocumentos.jsx       # Gestión de otros documentos
-│   │   └── OtrosDocumentos.css       # Estilos de otros documentos
-│   ├── hooks/                        # Hooks personalizados
-│   │   └── useAlert.js               # Hook para manejo de alertas
+│   ├── components/                   # Componentes específicos
+│   │   ├── Login.jsx
+│   │   └── Login.css
+│   │
+│   ├── pages/                        # Páginas principales
+│   │   ├── Dashboard.jsx
+│   │   ├── InformacionPersonal.jsx
+│   │   ├── Formacion.jsx
+│   │   ├── Experiencia.jsx
+│   │   └── OtrosDocumentos.jsx
+│   │
+│   ├── services/                     # 🔥 Servicios API centralizados
+│   │   ├── api.js                    # Cliente Axios configurado
+│   │   ├── auth.service.js           # Servicio de autenticación
+│   │   └── empleados.service.js      # Servicio de empleados
+│   │
+│   ├── shared/                       # 🔥 Recursos compartidos
+│   │   ├── components/               # Componentes reutilizables
+│   │   │   ├── Alert.jsx
+│   │   │   ├── ConfirmDialog.jsx
+│   │   │   └── ProtectedRoute.jsx
+│   │   ├── hooks/                    # Custom hooks
+│   │   │   └── useAlert.js
+│   │   ├── utils/                    # Utilidades
+│   │   │   ├── validators.js
+│   │   │   └── formatters.js
+│   │   └── constants/                # Constantes
+│   │       └── routes.js
+│   │
 │   ├── assets/                       # Recursos estáticos
-│   │   ├── favicon.png               # Favicon de la aplicación
-│   │   ├── logoblanco.png            # Logo blanco
-│   │   └── oftalmolaser.png          # Logo principal de Oftalmoláser
-│   ├── App.jsx                       # Componente principal con Router
-│   └── main.jsx                      # Punto de entrada de la aplicación
-├── node_modules/                     # Dependencias del frontend
-├── database_setup.sql                # Script completo de configuración de BD
-├── index.html                        # Archivo HTML principal
-├── .env                              # Variables de entorno del frontend (crear)
-├── package.json                      # Dependencias y scripts del frontend
-├── package-lock.json                 # Lock file de dependencias del frontend
-├── vite.config.js                    # Configuración de Vite
-├── LICENSE                           # Licencia del proyecto
-└── README.md                         # Documentación completa del proyecto
+│   ├── App.jsx                       # Componente principal
+│   └── main.jsx                      # Punto de entrada
+│
+├── database_setup.sql                # Script de configuración de BD
+├── ARCHITECTURE.md                   # 🔥 Documentación de arquitectura
+├── README.md                         # Documentación del proyecto
+└── package.json
+
+🔥 = Nuevo en arquitectura modular
 ```
 
 ### Descripción Detallada de Archivos Clave:
 
-#### Backend
-- **`backend/index.js`**: Servidor principal con configuración CORS, middleware JWT, rutas modulares
-- **`backend/db.js`**: Configuración de conexión a PostgreSQL con pool de conexiones
-- **`backend/routes/empleados.js`**: CRUD completo con validaciones robustas y manejo de errores
-- **`backend/routes/*.js`**: Rutas especializadas para cada módulo del sistema
-- **`backend/uploads/.gitkeep`**: Archivo para mantener el directorio de uploads en el control de versiones
+#### Backend (Arquitectura Modular)
+- **`backend/index.js`**: Punto de entrada que importa el servidor
+- **`backend/src/server.js`**: Servidor con manejo de señales y errores
+- **`backend/src/app.js`**: Configuración centralizada de Express y rutas
+- **`backend/src/shared/config/database.js`**: Pool de conexiones a PostgreSQL
+- **`backend/src/shared/middlewares/auth.middleware.js`**: Middleware JWT reutilizable
+- **`backend/src/modules/*/controllers/`**: Lógica HTTP request/response
+- **`backend/src/modules/*/services/`**: Lógica de negocio
+- **`backend/src/modules/*/models/`**: Acceso a datos (queries SQL)
+- **`backend/src/modules/*/routes/`**: Definición de endpoints
 
-#### Frontend
+#### Frontend (Servicios Centralizados)
 - **`src/App.jsx`**: Configuración de rutas con React Router
-- **`src/main.jsx`**: Punto de entrada con React StrictMode
-- **`src/components/Login.jsx`**: Autenticación con validación en tiempo real y opción "Recordarme"
-- **`src/pages/Dashboard.jsx`**: Dashboard principal con tabla fija, búsqueda y gestión de empleados
-- **`src/hooks/useAlert.js`**: Hook personalizado para sistema de alertas
+- **`src/services/api.js`**: Cliente Axios con interceptors
+- **`src/services/auth.service.js`**: Servicio centralizado de autenticación
+- **`src/shared/components/`**: Componentes reutilizables (Alert, ProtectedRoute, etc.)
+- **`src/shared/hooks/useAlert.js`**: Hook personalizado para alertas
+- **`src/shared/utils/validators.js`**: Utilidades de validación
+- **`src/pages/Dashboard.jsx`**: Dashboard principal con gestión de empleados
 
 #### Configuración
-- **`database_setup.sql`**: Script completo con tablas, índices, relaciones y datos iniciales
-- **`vite.config.js`**: Configuración de Vite con plugin de React
-- **`.env`**: Variables de entorno para configuración flexible
+- **`database_setup.sql`**: Script completo de base de datos
+- **`ARCHITECTURE.md`**: Documentación detallada de la arquitectura
+- **`vite.config.js`**: Configuración de Vite
+- **`.env`**: Variables de entorno
 
 ## API Endpoints
 

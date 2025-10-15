@@ -469,6 +469,7 @@ html, body {
 /* =======================
   Botones de acciones (estilo)
 ======================= */
+.details-btn,
 .info-btn,
 .formacion-btn,
 .experiencia-btn,
@@ -516,6 +517,7 @@ html, body {
   box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2) !important;
 }
 
+.details-btn::before,
 .info-btn::before,
 .formacion-btn::before,
 .experiencia-btn::before,
@@ -532,6 +534,7 @@ html, body {
   transition: left 0.5s;
 }
 
+.details-btn:hover::before,
 .info-btn:hover::before,
 .formacion-btn:hover::before,
 .experiencia-btn:hover::before,
@@ -541,6 +544,7 @@ html, body {
   left: 100%;
 }
 
+.details-btn:hover,
 .info-btn:hover,
 .formacion-btn:hover,
 .experiencia-btn:hover,
@@ -609,7 +613,8 @@ html, body {
   display: flex;
   justify-content: flex-end;
 }
-.modal-content h3 { margin-bottom: 1rem; color: #333; }
+/* Hacer más específico para evitar conflictos con otros componentes */
+.dashboard-container .modal-content h3 { margin-bottom: 1rem; color: #333; }
 
 /* Formulario del modal */
 .empleado-form {

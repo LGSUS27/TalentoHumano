@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import AlertContainer from "../components/AlertContainer";
-import ConfirmDialog from "../components/ConfirmDialog";
-import useAlert from "../hooks/useAlert";
+import AlertContainer from "../shared/components/AlertContainer";
+import ConfirmDialog from "../shared/components/ConfirmDialog";
+import useAlert from "../shared/hooks/useAlert";
 import "./OtrosDocumentos.css";
 
 const API = "http://localhost:3000/api";
@@ -38,7 +38,7 @@ const CONTRATOS_OTROSIS_FIELD = "contratos_otrosis";
 
 const MAX_MB = 10;
 
-const OtrosDocumentos = ({ empleado, onClose }) => {
+const OtrosDocumentos = ({ empleado, onClose, embedded = false }) => {
   const empleadoId = empleado?.id;
   
   // Hook para manejar alertas
@@ -232,9 +232,9 @@ const OtrosDocumentos = ({ empleado, onClose }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="otros-docs-modal" onClick={(e) => e.stopPropagation()}>
-        <h2>Otros Documentos — {empleado?.nombre}</h2>
+    <div className={`modal-overlay ${embedded ? 'embedded-mode' : ''}`} onClick={handleOverlayClick}>
+      <div className={`otros-docs-modal ${embedded ? 'embedded-mode' : ''}`} onClick={(e) => e.stopPropagation()}>
+        <h3>Otros Documentos — {empleado?.nombre}</h3>
 
         {loading ? (
           <p>Cargando…</p>
@@ -386,8 +386,8 @@ const OtrosDocumentos = ({ empleado, onClose }) => {
                     <polyline points="10,9 9,9 8,9"/>
                   </svg>
                   <p className="file-input-text">
-                    {contratosOtrosis.length > 0 
-                      ? `${contratosOtrosis.length}/10 archivo(s) seleccionado(s)` 
+                    {contratosOtrosis.length > 0
+                      ? `${contratosOtrosis.length}/10 archivo(s) seleccionado(s)`
                       : 'Seleccionar contratos Otrosis (múltiples PDFs)'
                     }
                   </p>

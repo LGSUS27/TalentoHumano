@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AlertContainer from "../components/AlertContainer";
-import useAlert from "../hooks/useAlert";
+import AlertContainer from "../shared/components/AlertContainer";
+import useAlert from "../shared/hooks/useAlert";
 import "./Formacion.css";
 
-const Formacion = ({ empleado, onClose }) => {
+const Formacion = ({ empleado, onClose, embedded = false }) => {
   const [formaciones, setFormaciones] = useState([]);
   const [formData, setFormData] = useState({
     institucion: "",
@@ -48,7 +48,7 @@ const Formacion = ({ empleado, onClose }) => {
       
       try {
         const res = await axios.get(`${API_URL}/api/formacion/${empleado.id}`);
-        const formacionesConArchivos = res.data.map((form) => ({
+        const formacionesConArchivos = (res.data.data || res.data || []).map((form) => ({
           ...form,
           archivoURL: `${API_URL}/uploads/${form.archivo}`,
         }));
@@ -165,8 +165,8 @@ const Formacion = ({ empleado, onClose }) => {
       });
 
       const nueva = {
-        ...res.data,
-        archivoURL: `${API_URL}/uploads/${res.data.archivo}`,
+        ...(res.data.data || res.data),
+        archivoURL: `${API_URL}/uploads/${(res.data.data || res.data).archivo}`,
       };
 
       setFormaciones([nueva, ...formaciones]);
@@ -179,6 +179,7 @@ const Formacion = ({ empleado, onClose }) => {
         fecha: "",
         archivo: null,
       });
+      showSuccess("Formación agregada exitosamente");
     } catch (err) {
       console.error("Error al enviar datos:", err);
       showError("Error al guardar la formación: " + (err.response?.data?.error || err.message));
@@ -279,14 +280,16 @@ const Formacion = ({ empleado, onClose }) => {
       });
 
       // Actualizar la lista de formaciones
+      const responseData = res.data.data || res.data;
       const updatedFormaciones = formaciones.map(form =>
         form.id === editingForm.id
-          ? { ...res.data, archivoURL: res.data.archivo ? `${API_URL}/uploads/${res.data.archivo}` : form.archivoURL }
+          ? { ...responseData, archivoURL: responseData.archivo ? `${API_URL}/uploads/${responseData.archivo}` : form.archivoURL }
           : form
       );
       setFormaciones(updatedFormaciones);
       
       handleCancelEdit();
+      showSuccess("Formación actualizada exitosamente");
     } catch (err) {
       console.error("Error al actualizar formación:", err);
       showError("Error al actualizar la formación: " + (err.response?.data?.error || err.message));
@@ -294,10 +297,10 @@ const Formacion = ({ empleado, onClose }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={handleOutsideClick}>
-      <div className="formacion-modal" onClick={(e) => e.stopPropagation()}>
+    <div className={`modal-overlay ${embedded ? 'embedded-mode' : ''}`} onClick={handleOutsideClick}>
+      <div className={`formacion-modal ${embedded ? 'embedded-mode' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="formacion-container">
-          <h2>Formación Académica - {empleado?.nombre || 'Empleado'}</h2>
+          <h3>Formación Académica - {empleado?.nombre || 'Empleado'}</h3>
 
           <form className="formacion-form" onSubmit={editingForm ? handleUpdateForm : handleSubmit}>
             <div className="form-group">

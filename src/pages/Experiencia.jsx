@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AlertContainer from "../components/AlertContainer";
-import useAlert from "../hooks/useAlert";
+import AlertContainer from "../shared/components/AlertContainer";
+import useAlert from "../shared/hooks/useAlert";
 import "./Experiencia.css";
 
-const Experiencia = ({ empleado, onClose }) => {
+const Experiencia = ({ empleado, onClose, embedded = false }) => {
   const [experiencias, setExperiencias] = useState([]);
   const [formData, setFormData] = useState({
     empresa: "",
@@ -29,7 +29,7 @@ const Experiencia = ({ empleado, onClose }) => {
       
       try {
         const res = await axios.get(`${API_URL}/api/experiencia/${empleado.id}`);
-        const dataConArchivos = res.data.map((exp) => ({
+        const dataConArchivos = (res.data.data || res.data || []).map((exp) => ({
           ...exp,
           archivoURL: `${API_URL}/uploads/${exp.soporte}`,
         }));
@@ -149,12 +149,14 @@ const Experiencia = ({ empleado, onClose }) => {
       const res = await axios.post(`${API_URL}/api/experiencia`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      const nueva = { ...res.data, archivoURL: `${API_URL}/uploads/${res.data.soporte}` };
+      const responseData = res.data.data || res.data;
+      const nueva = { ...responseData, archivoURL: `${API_URL}/uploads/${responseData.soporte}` };
       setExperiencias((prev) => [nueva, ...prev]);
       setFormData({
         empresa: "", cargo: "", tipoVinculacion: "Seleccionar tipo de vinculación...",
         fechaInicio: "", fechaFin: "", funciones: "", archivo: null,
       });
+      showSuccess("Experiencia agregada exitosamente");
     } catch (err) {
       console.error("Error al guardar experiencia:", err);
       showError("Error al guardar experiencia: " + (err.response?.data?.error || err.message));
@@ -233,14 +235,16 @@ const Experiencia = ({ empleado, onClose }) => {
       });
 
       // Actualizar la lista de experiencias
+      const responseData = res.data.data || res.data;
       const updatedExperiencias = experiencias.map(exp =>
         exp.id === editingExp.id
-          ? { ...res.data, archivoURL: res.data.soporte ? `${API_URL}/uploads/${res.data.soporte}` : exp.archivoURL }
+          ? { ...responseData, archivoURL: responseData.soporte ? `${API_URL}/uploads/${responseData.soporte}` : exp.archivoURL }
           : exp
       );
       setExperiencias(updatedExperiencias);
       
       handleCancelEdit();
+      showSuccess("Experiencia actualizada exitosamente");
     } catch (err) {
       console.error("Error al actualizar experiencia:", err);
       showError("Error al actualizar la experiencia: " + (err.response?.data?.error || err.message));
@@ -249,15 +253,15 @@ const Experiencia = ({ empleado, onClose }) => {
 
   return (
     <div
-      className="modal-overlay"
+      className={`modal-overlay ${embedded ? 'embedded-mode' : ''}`}
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="experiencia-title"
     >
-      <div className="experiencia-container" onClick={(e) => e.stopPropagation()}>
+      <div className={`experiencia-container ${embedded ? 'embedded-mode' : ''}`} onClick={(e) => e.stopPropagation()}>
         <header>
-          <h2 id="experiencia-title">Experiencia Laboral - {empleado?.nombre || 'Empleado'}</h2>
+          <h3 id="experiencia-title">Experiencia Laboral - {empleado?.nombre || 'Empleado'}</h3>
         </header>
 
         <form className="experiencia-form" onSubmit={editingExp ? handleUpdateExp : handleSubmit} noValidate>

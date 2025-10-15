@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import AlertContainer from "./AlertContainer";
-import useAlert from "../hooks/useAlert";
+import AlertContainer from "../shared/components/AlertContainer";
+import useAlert from "../shared/hooks/useAlert";
+import authService from "../services/auth.service";
 import "./Login.css";
 import logoOftalmolaser from "../assets/oftalmolaser.png";
 
@@ -74,24 +74,13 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
     
     try {
-      const response = await axios.post(`${API}/login`, { username, password });
+      const response = await authService.login(username, password);
 
-      if (response.data?.success && response.data?.token) {
-        // Limpiar tokens viejos antes de guardar el nuevo
-        localStorage.removeItem("token");
-        sessionStorage.removeItem("token");
-        
-        // Guardar token con opción de recordar
-        if (rememberMe) {
-          localStorage.setItem("token", response.data.token);
-          localStorage.setItem("rememberMe", "true");
-        } else {
-          sessionStorage.setItem("token", response.data.token);
-          localStorage.removeItem("rememberMe");
-        }
+      if (response?.success && response?.data?.token) {
+        // Guardar token usando el servicio
+        authService.saveToken(response.data.token, rememberMe);
         
         showSuccess("Inicio de sesión exitoso");
         // Pequeño delay para mostrar el mensaje de éxito antes de navegar
@@ -99,7 +88,7 @@ const Login = () => {
           navigate("/dashboard", { replace: true });
         }, 1000);
       } else {
-        showError(response.data?.message || "Credenciales incorrectas");
+        showError(response?.message || "Credenciales incorrectas");
       }
     } catch (err) {
       console.error("Error en la solicitud:", err);

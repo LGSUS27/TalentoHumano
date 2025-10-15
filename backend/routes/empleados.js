@@ -2,8 +2,16 @@ import express from 'express';
 import pool from '../db.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
+
+// Para resolver __dirname en ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const UPLOAD_ROOT = path.join(__dirname, '..', 'uploads');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
@@ -364,6 +372,7 @@ try {
 });
 
 // DELETE /empleados/:id - Eliminar empleado
+// IMPORTANTE: También elimina todos los archivos físicos asociados
 router.delete('/:id', verificarToken, async (req, res) => {
 try {
     const { id } = req.params;
@@ -382,18 +391,123 @@ try {
     
     console.log(`Empleado encontrado: ${checkResult.rows[0].nombre} (ID: ${checkResult.rows[0].id})`);
     
-    // Eliminar el empleado (las tablas relacionadas se eliminarán automáticamente por CASCADE)
+    // Obtener todos los archivos asociados ANTES de eliminar el empleado
+    const allFiles = [];
+    
+    // Archivos de información personal
+    const infoPersResult = await pool.query(
+        'SELECT documento_pdf, imagen_personal FROM informacion_personal WHERE empleado_id = $1',
+        [id]
+    );
+    if (infoPersResult.rows.length > 0) {
+        const row = infoPersResult.rows[0];
+        if (row.documento_pdf) allFiles.push({ file: row.documento_pdf, subFolder: '' });
+        if (row.imagen_personal) allFiles.push({ file: row.imagen_personal, subFolder: '' });
+    }
+    
+    // Archivos de formación
+    const formacionResult = await pool.query(
+        'SELECT archivo FROM formacion WHERE empleado_id = $1 AND archivo IS NOT NULL',
+        [id]
+    );
+    formacionResult.rows.forEach(row => {
+        allFiles.push({ file: row.archivo, subFolder: '' });
+    });
+    
+    // Archivos de experiencia
+    const experienciaResult = await pool.query(
+        'SELECT soporte FROM experiencia WHERE empleado_id = $1 AND soporte IS NOT NULL',
+        [id]
+    );
+    experienciaResult.rows.forEach(row => {
+        allFiles.push({ file: row.soporte, subFolder: '' });
+    });
+    
+    // Archivos de otros documentos
+    const otrosDocsResult = await pool.query(
+        `SELECT contrato, libreta_militar, antecedentes_disciplinarios, rut, rethus,
+                arl, eps, afp, caja_compensacion, examen_ingreso, examen_periodico,
+                examen_egreso, documentos_seleccion, contratos_otrosis
+        FROM otros_documentos WHERE empleado_id = $1`,
+        [id]
+    );
+    
+    if (otrosDocsResult.rows.length > 0) {
+        const row = otrosDocsResult.rows[0];
+        const campos = [
+            'contrato', 'libreta_militar', 'antecedentes_disciplinarios', 'rut', 'rethus',
+            'arl', 'eps', 'afp', 'caja_compensacion', 'examen_ingreso', 'examen_periodico',
+            'examen_egreso', 'documentos_seleccion'
+        ];
+        
+        campos.forEach(campo => {
+            if (row[campo]) {
+                allFiles.push({ file: row[campo], subFolder: 'otros-documentos' });
+            }
+        });
+        
+        // Manejar contratos_otrosis (array JSON)
+        if (row.contratos_otrosis) {
+            try {
+                const contratos = typeof row.contratos_otrosis === 'string' 
+                    ? JSON.parse(row.contratos_otrosis) 
+                    : row.contratos_otrosis;
+                
+                if (Array.isArray(contratos)) {
+                    contratos.forEach(contrato => {
+                        if (contrato.filename) {
+                            allFiles.push({ file: contrato.filename, subFolder: 'otros-documentos' });
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn(`Error al parsear contratos_otrosis:`, e);
+            }
+        }
+    }
+    
+    console.log(`Se encontraron ${allFiles.length} archivo(s) para eliminar`);
+    
+    // Eliminar archivos físicos
+    let deletedCount = 0;
+    let failedCount = 0;
+    
+    for (const fileInfo of allFiles) {
+        try {
+            const filePath = fileInfo.subFolder
+                ? path.join(UPLOAD_ROOT, fileInfo.subFolder, fileInfo.file)
+                : path.join(UPLOAD_ROOT, fileInfo.file);
+            
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+                deletedCount++;
+                console.log(`Archivo eliminado: ${fileInfo.file}`);
+            } else {
+                failedCount++;
+                console.warn(`Archivo no encontrado: ${fileInfo.file}`);
+            }
+        } catch (error) {
+            failedCount++;
+            console.warn(`Error al eliminar archivo ${fileInfo.file}:`, error.message);
+        }
+    }
+    
+    console.log(`Archivos eliminados: ${deletedCount}/${allFiles.length} (${failedCount} fallidos)`);
+    
+    // Ahora eliminar el empleado (las tablas relacionadas se eliminarán automáticamente por CASCADE)
     const { rows } = await pool.query(
       'DELETE FROM empleados WHERE id = $1 RETURNING *',
     [id]
     );
 
-    console.log(`Empleado eliminado exitosamente: ${rows[0].nombre} (ID: ${rows[0].id})`);
+    console.log(`Empleado eliminado exitosamente: ${rows[0].nombre} (ID: ${rows[0].id}) - ${deletedCount} archivo(s) físico(s) eliminado(s)`);
     
     res.json({
         success: true,
         message: 'Empleado eliminado exitosamente',
-        empleado: rows[0]
+        empleado: rows[0],
+        filesDeleted: deletedCount,
+        filesFailed: failedCount
     });
 } catch (error) {
     console.error('Error al eliminar empleado:', error);
